@@ -3,9 +3,10 @@ package operation_hub
 import (
 	"context"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/handler"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
 )
 
 func Main(context context.Context, event events.SQSEvent) error {
-	return handler.Handler(context, event)
+	app := config.BeanConfig()
+	return app.Handler.Handle(context, event)
 }

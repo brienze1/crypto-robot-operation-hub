@@ -2,7 +2,13 @@ package usecase
 
 import "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
 
-func ClientActionsUseCase(analysis model.Analysis) error {
+type clientActionsUseCase struct {
+}
 
+func ClientActionsUseCase() *clientActionsUseCase {
+	return &clientActionsUseCase{}
+}
+
+func (c clientActionsUseCase) TriggerOperations(analysis model.Analysis) error {
 	return nil
 }
