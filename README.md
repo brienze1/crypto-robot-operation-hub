@@ -9,9 +9,6 @@
         1. [Client DB](#client-db)
             1. [Schema](#schema)
             2. [Operation](#operation)
-        2. [Client Lock Cache](#client-lock-cache)
-            1. [Schema](#schema-1)
-            2. [Operation](#operation-1)
     4. [Rules](#rules)
     5. [Built With](#built-with)
         1. [Dependencies](#dependencies)
@@ -227,7 +224,7 @@ Since this is an async application there is no output to be returned, but operat
 received.
 Operation events should have information needed to track client who will trigger the operation, the operation type,
 crypto being traded, operation event time sent and available amount (if operation type is BUY amount should be in cash,
-otherwise if operation type is SELL, amount should be used like crypto currency amount).
+otherwise if operation type is SELL, amount should be used like cryptocurrency amount).
 
 Example of how the line should look like:
 
@@ -315,35 +312,12 @@ operations, etc...
 }
 ```
 
-##### Operations
+##### Operation
 
 This application supports the following operations to the Client DB:
 
 - Read ops:
     - Used to read clients available for the current operation
-- Write ops:
-    - Used to change the lock variable (locking the client for current operation).
-    - Used to change the reserved cash or crypto amount.
-
-#### Client Lock Cache
-
-Client Lock Cache is the database that contains the client lock information needed to avoid multiple trigger the
-operations to the same client.
-For this DB, Redis was chosen because of the easy implementation, really fast operation speed and liability.
-
-##### Schema
-
-Locks are being save into the key `CRYPTO_ROBOT_OPERATION_HUB_CLIENT_LOCK_<client_id>` with it´s value being
-the `client_id` itself.
-
-##### Operations
-
-This application supports the following operations to the Client Lock Cache:
-
-- Read ops:
-    - Used to find locks active for clients.
-- Write ops:
-    - Used to persist locks for clients (Uses ttl)
 
 ### Rules
 
@@ -351,20 +325,44 @@ Here are some rules that need to be implemented in this application.
 
 Implemented:
 
-- Data needs to be updated on the database once it is received
-- The app should gather all the data saved and generate an indication
-- The data should be sent via SNS topic event
+- None
 
 Not implemented:
 
-- Data received should be checked to see if it's newer than the one saved
-- If there is no data saved on the database, the summary should be generated using only the data received
+- Client must be active
+- Client must not be locked
+- Client must have enough cash to buy minimum allowed amount of crypto
+- Client must have enough crypto to sell minimum allowed amount
+- Client must have the coin symbol selected inside `config.symbols` variable to operate it
+- Operations should not be triggered after monthly sell cap has been reached
+    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly
+      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,
+      because when the operation is completed and the crypto is sold the expectation is that the value should be equal
+      or close to the bought amount (witch mas of 2500) totalizing 25.000,00 monthly sell value.
+    - If monthly cap is 0 it can be ignored.
+- Buy operations should be triggered when the summary received is equal or less restricting than the `config.buy_on`
+  value.
+    - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
+      be allowed, and the opposite should be denied.
+- Sell operations should be triggered when the summary received is equal or less restricting than the `config.sell_on`
+  value.
+    - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
+      be allowed, and the opposite should be denied.
+- Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to
+  the `config.day_stop_loss` value.
+    - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values
+      should be updated to start a new day.
+- Operations should not be triggered if `monthly_summary.proffit` has a negative value of more than or equal to
+  the `config.month_stop_loss` value.
+    - `monthly_summary.month` value should be checked to see if current month has changed, in this case, the values
+      should be updated to start a new month.
+
+[//]: # (TODO check for more rules)
 
 ### Built With
 
-This application is build with Node.js Typescript, code is build using a Dockerfile every deployment into the main
-branch in GitHub using GitHub actions.
-Local environment is created using localstack for testing purposes using
+This application is build with Golang, code is build using a Dockerfile every deployment into the main branch in GitHub
+using GitHub actions. Local environment is created using localstack for testing purposes using
 [crypto-robot-localstack](https://github.com/brienze1/crypto-robot-localstack).
 
 #### Dependencies
@@ -393,12 +391,12 @@ Local environment is created using localstack for testing purposes using
 
 ### Roadmap
 
--   [X] Implement Behaviour tests (BDD)
--   [X] Implement Unit tests
--   [X] Implement application logic
--   [X] Create Dockerfile
--   [X] Create Docker compose for local infrastructure
--   [X] Document everything in Readme
+-   [] Implement Behaviour tests (BDD)
+-   [] Implement Unit tests
+-   [] Implement application logic
+-   [] Create Dockerfile
+-   [] Create Docker compose for local infrastructure
+-   [] Document everything in Readme
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -406,20 +404,21 @@ Local environment is created using localstack for testing purposes using
 
 ### Prerequisites
 
-- Install Node and npm
+- Install Golang
 
     - Windows/MacOS/Linux
-        - [Manual](https://nodejs.org/)
+        - [Manual](https://go.dev/dl/)
     - macOS
         - [Homebrew](https://docs.brew.sh/Installation)
           ```bash
-          brew install node
+          brew install go
           ```
     - Linux
         - Via terminal
           ```bash
-          sudo apt install nodejs
-          sudo apt install npm
+          sudo add-apt-repository ppa:longsleep/golang-backports
+          sudo apt update
+          sudo apt install golang-go
           ```
 
 - Install Docker
@@ -427,11 +426,14 @@ Local environment is created using localstack for testing purposes using
 
 ### Installation
 
-- Run the following to install dependencies and compile the project:
+[//]: # (TODO this needs to be checked again in the future)
+- Run the following to compile the project:
     - Windows/MacOS/Linux/WSL
       ```bash
-      npm install && npm run build
+      go build -o bin/operation-hub cmd/operation-hub/main.go
       ```
+
+Note: the binary generated will be available at `./bin` folder.
 
 ### Requirements
 
@@ -464,7 +466,7 @@ Obs: Make sure Docker is running before.
 - Start the compiled application:
     - Windows/macOS/Linux/WSL
       ```bash
-      npm run dev
+      go run cmd/operation-hub/main.go
       ```
 - To stop the application just press Ctrl+C
 
@@ -474,21 +476,22 @@ Obs: Make sure Docker is running before.
   Dockerfile:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker build -t crypto-robot-data-digest .
+      docker build -t crypto-robot-operation-hub .
       ```
 
 - And then run the new created image:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker run --network="host" -d -it crypto-robot-data-digest bash -c "npm install && npm run dev:docker"
+      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./bin/operation-hub"
       ```
 
 ### Testing
 
+[//]: # (TODO validate test command)
 - To run the tests just type the command bellow in terminal:
     - Windows/macOS/Linux/WSL
       ```bash
-      npm run test
+      go test
       ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
