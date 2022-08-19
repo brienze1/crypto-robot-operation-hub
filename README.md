@@ -426,8 +426,13 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 ### Installation
 
-[//]: # (TODO this needs to be checked again in the future)
-- Run the following to compile the project:
+- Run the following to install project dependencies:
+    - Windows/MacOS/Linux/WSL
+      ```bash
+      go mod tidy
+      ```
+
+- Run the following to compile the project and generate executable:
     - Windows/MacOS/Linux/WSL
       ```bash
       go build -o bin/operation-hub cmd/operation-hub/main.go
@@ -487,7 +492,6 @@ Obs: Make sure Docker is running before.
 
 ### Testing
 
-[//]: # (TODO validate test command)
 - To run the tests just type the command bellow in terminal:
     - Windows/macOS/Linux/WSL
       ```bash
