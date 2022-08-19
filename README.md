@@ -491,7 +491,7 @@ Obs: Make sure Docker is running before.
 - To run the tests just type the command bellow in terminal:
     - Windows/macOS/Linux/WSL
       ```bash
-      go test
+      go test ./...
       ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
