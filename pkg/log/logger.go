@@ -14,7 +14,7 @@ type (
 	logger struct {
 		Timestamp     string      `json:"timestamp"`
 		Level         string      `json:"level"`
-		ErrorMsg      string      `json:"error,omitempty"`
+		ErrorMsg      string      `json:"exceptions,omitempty"`
 		Message       string      `json:"message"`
 		Metadata      interface{} `json:"metadata,omitempty"`
 		CorrelationId string      `json:"correlationId"`

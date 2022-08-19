@@ -5,27 +5,17 @@ import (
 	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/dto"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/errors"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/exceptions"
 )
 
-type (
-	clientActionsUseCase interface {
-		TriggerOperations(analysis model.Analysis) error
-	}
-	logger interface {
-		SetCorrelationID(correlationId string)
-		Info(message string, metadata ...interface{})
-		Error(err error, message string, metadata ...interface{})
-	}
-	handler struct {
-		clientActionsUseCase clientActionsUseCase
-		logger               logger
-	}
-)
+type handler struct {
+	clientActionsUseCase adapters.ClientActionsUseCaseAdapter
+	logger               adapters.LoggerAdapter
+}
 
-func Handler(useCase clientActionsUseCase, logger logger) *handler {
+func Handler(useCase adapters.ClientActionsUseCaseAdapter, logger adapters.LoggerAdapter) *handler {
 	return &handler{
 		clientActionsUseCase: useCase,
 		logger:               logger,
@@ -41,7 +31,7 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 	err := json.Unmarshal([]byte(event.Records[0].Body), analysisDto)
 	if err != nil {
 		h.logger.Error(err, "Error while trying to parse the message", event, ctx, err.Error())
-		return errors.HandlerError{
+		return exceptions.HandlerError{
 			Message:         err.Error(),
 			InternalMessage: "Error while trying to parse the message",
 		}
@@ -50,7 +40,7 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 	err = h.clientActionsUseCase.TriggerOperations(analysisDto.ToAnalysis())
 	if err != nil {
 		h.logger.Error(err, "Event failed", event, ctx, err)
-		return errors.HandlerError{
+		return exceptions.HandlerError{
 			Message:         err.Error(),
 			InternalMessage: "Error while trying to run ClientActionsUseCase",
 		}

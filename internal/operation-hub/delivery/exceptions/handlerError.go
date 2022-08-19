@@ -1,8 +1,8 @@
-package errors
+package exceptions
 
 type HandlerError struct {
 	Message         string `json:"message"`
-	InternalMessage string `json:"errors"`
+	InternalMessage string `json:"exceptions"`
 }
 
 func (err HandlerError) Error() string {

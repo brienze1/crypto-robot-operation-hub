@@ -2,11 +2,13 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/adapters"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/exceptions"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/handler"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
-	"github.com/brienze1/crypto-robot-operation-hub/pkg/log"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,6 +16,10 @@ import (
 
 type (
 	clientActionsUseCaseMock struct {
+		adapters.ClientActionsUseCaseAdapter
+	}
+	loggerMock struct {
+		adapters.LoggerAdapter
 	}
 	ctx struct {
 		context.Context
@@ -21,25 +27,56 @@ type (
 )
 
 var (
-	clientActionsUseCaseCallCounter = 0
-	awsRequestId                    = uuid.New().String()
+	clientActionsUseCaseCallCounter int
+	clientActionsUseCaseError       error
+	loggerInfoCallCounter           int
+	loggerErrorCallCounter          int
+	awsRequestIdExpected            string
+	awsRequestIdReceived            string
+)
+
+var (
+	clientActionsUseCase = clientActionsUseCaseMock{}
+	logger               = loggerMock{}
+	handlerImpl          adapters.HandlerAdapter
 )
 
 func (clientActionsUseCaseMock clientActionsUseCaseMock) TriggerOperations(model.Analysis) error {
 	clientActionsUseCaseCallCounter += 1
-	return nil
+	return clientActionsUseCaseError
+}
+
+func (loggerMock loggerMock) SetCorrelationID(id string) {
+	awsRequestIdReceived = id
+}
+
+func (loggerMock loggerMock) Info(string, ...interface{}) {
+	loggerInfoCallCounter++
+}
+
+func (loggerMock loggerMock) Error(error, string, ...interface{}) {
+	loggerErrorCallCounter++
 }
 
 func (ctx ctx) Value(any) any {
 	return &lambdacontext.LambdaContext{
-		AwsRequestID: awsRequestId,
+		AwsRequestID: awsRequestIdExpected,
 	}
 }
 
+func setup() {
+	handlerImpl = handler.Handler(clientActionsUseCase, logger)
+
+	clientActionsUseCaseCallCounter = 0
+	clientActionsUseCaseError = nil
+	loggerInfoCallCounter = 0
+	loggerErrorCallCounter = 0
+	awsRequestIdReceived = ""
+	awsRequestIdExpected = uuid.NewString()
+}
+
 func TestHandlerSuccess(t *testing.T) {
-	clientActionsUseCaseMock := clientActionsUseCaseMock{}
-	logger := log.Logger()
-	handlerImpl := handler.Handler(clientActionsUseCaseMock, logger)
+	setup()
 
 	ctx := ctx{}
 	event := *createEvent()
@@ -48,7 +85,45 @@ func TestHandlerSuccess(t *testing.T) {
 
 	assert.Nil(t, err, "Error should be nil")
 	assert.Equal(t, 1, clientActionsUseCaseCallCounter, "clientActionsUseCase should be called once")
-	assert.Equal(t, 1, 1, "test assert")
+	assert.Equal(t, 2, loggerInfoCallCounter, "logger info should be called twice")
+	assert.Equal(t, 0, loggerErrorCallCounter, "logger exceptions should not be called")
+	assert.Equal(t, awsRequestIdExpected, awsRequestIdReceived, "Logger correlationId is same as context awsRequestId")
+}
+
+func TestHandlerJsonError(t *testing.T) {
+	setup()
+
+	ctx := ctx{}
+	event := *createEvent()
+	event.Records[0].Body = ""
+
+	var err = handlerImpl.Handle(ctx, event)
+
+	assert.NotNil(t, err, "Error should not be nil")
+	assert.Equal(t, err.(exceptions.HandlerError).InternalMessage, "Error while trying to parse the message")
+	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
+	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
+	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")
+	assert.Equal(t, awsRequestIdExpected, awsRequestIdReceived, "Logger correlationId is same as context awsRequestId")
+}
+
+func TestHandlerClientActionsUseCaseError(t *testing.T) {
+	setup()
+
+	ctx := ctx{}
+	event := *createEvent()
+	clientActionsUseCaseError = errors.New(uuid.NewString())
+
+	var err = handlerImpl.Handle(ctx, event)
+
+	assert.NotNil(t, err, "Error should not be nil")
+	assert.Equal(t, err.(exceptions.HandlerError).InternalMessage, "Error while trying to run ClientActionsUseCase")
+	assert.Equal(t, err.Error(), clientActionsUseCaseError.Error())
+	assert.Equal(t, 1, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
+	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
+	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")
+	assert.Equal(t, awsRequestIdExpected, awsRequestIdReceived, "Logger correlationId is same as context awsRequestId")
 }
 
 func createEvent() *events.SQSEvent {
