@@ -391,12 +391,12 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 ### Roadmap
 
--   [] Implement Behaviour tests (BDD)
--   [] Implement Unit tests
--   [] Implement application logic
--   [] Create Dockerfile
--   [] Create Docker compose for local infrastructure
--   [] Document everything in Readme
+- [] Implement Behaviour tests (BDD)
+- [] Implement Unit tests
+- [] Implement application logic
+- [] Create Dockerfile
+- [] Create Docker compose for local infrastructure
+- [] Document everything in Readme
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -487,7 +487,7 @@ Obs: Make sure Docker is running before.
 - And then run the new created image:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./operation-hub"
+      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./crypto-robot-operation-hub/operation-hub"
       ```
 
 ### Testing
