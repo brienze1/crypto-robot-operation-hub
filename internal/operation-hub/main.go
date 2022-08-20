@@ -6,5 +6,6 @@ import (
 )
 
 func Main() adapters.HandlerAdapter {
+	config.LoadEnv()
 	return config.WireDependencies()
 }

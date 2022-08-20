@@ -429,7 +429,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 - Run the following to install project dependencies:
     - Windows/MacOS/Linux/WSL
       ```bash
-      go mod tidy
+      go mod download
       ```
 
 - Run the following to compile the project and generate executable:
@@ -487,7 +487,7 @@ Obs: Make sure Docker is running before.
 - And then run the new created image:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./bin/operation-hub"
+      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./operation-hub"
       ```
 
 ### Testing
