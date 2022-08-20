@@ -29,12 +29,12 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 
 	snsMessage := &events.SNSEvent{}
 	if err := json.Unmarshal([]byte(event.Records[0].Body), snsMessage); err != nil {
-		return h.abort(err, "Error while trying to parse the SQS message")
+		return h.abort(err, "Error while trying to parse the SNS message")
 	}
 
 	analysisDto := &dto.AnalysisDto{}
 	if err := json.Unmarshal([]byte(snsMessage.Records[0].SNS.Message), analysisDto); err != nil {
-		return h.abort(err, "Error while trying to parse the SNS message")
+		return h.abort(err, "Error while trying to parse the analysis object")
 	}
 
 	if err := h.clientActionsUseCase.TriggerOperations(analysisDto.ToAnalysis()); err != nil {
