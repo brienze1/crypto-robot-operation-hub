@@ -22,6 +22,11 @@ type (
 	}
 )
 
+const (
+	infoLevel  string = "INFO "
+	errorLevel string = "ERROR"
+)
+
 var loggerInstance *logger
 
 func Logger() *logger {
@@ -42,12 +47,12 @@ func (l *logger) SetCorrelationID(correlationId string) {
 }
 
 func (l *logger) Info(message string, metadata ...interface{}) {
-	logMessage := l.generateLogMessage("INFO ", message, nil, metadata)
+	logMessage := l.generateLogMessage(infoLevel, message, nil, metadata)
 	log.Println(logMessage)
 }
 
 func (l *logger) Error(err error, message string, metadata ...interface{}) {
-	logMessage := l.generateLogMessage("ERROR", message, err, metadata)
+	logMessage := l.generateLogMessage(errorLevel, message, err, metadata)
 	log.Println(logMessage)
 }
 

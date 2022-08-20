@@ -9,6 +9,6 @@ func ClientActionsUseCase() *clientActionsUseCase {
 	return &clientActionsUseCase{}
 }
 
-func (c clientActionsUseCase) TriggerOperations(analysis model.Analysis) error {
+func (c *clientActionsUseCase) TriggerOperations(model.Analysis) error {
 	return nil
 }

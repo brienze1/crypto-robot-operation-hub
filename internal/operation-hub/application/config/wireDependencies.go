@@ -7,18 +7,10 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/pkg/log"
 )
 
-type (
-	beanConfig struct {
-		Handler adapters.HandlerAdapter
-	}
-)
-
-func BeanConfig() *beanConfig {
+func WireDependencies() adapters.HandlerAdapter {
 	logger := log.Logger()
-	clientActionsUseCase := *usecase.ClientActionsUseCase()
-	handlerImpl := *handler.Handler(clientActionsUseCase, logger)
+	clientActionsUseCase := usecase.ClientActionsUseCase()
+	handlerImpl := handler.Handler(clientActionsUseCase, logger)
 
-	return &beanConfig{
-		Handler: &handlerImpl,
-	}
+	return handlerImpl
 }

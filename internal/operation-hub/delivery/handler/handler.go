@@ -27,25 +27,28 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 	h.logger.SetCorrelationID(ctx.AwsRequestID)
 	h.logger.Info("Event received", event, ctx)
 
-	analysisDto := &dto.AnalysisDto{}
-	err := json.Unmarshal([]byte(event.Records[0].Body), analysisDto)
-	if err != nil {
-		h.logger.Error(err, "Error while trying to parse the message", event, ctx, err.Error())
-		return exceptions.HandlerError{
-			Message:         err.Error(),
-			InternalMessage: "Error while trying to parse the message",
-		}
+	snsMessage := &events.SNSEvent{}
+	if err := json.Unmarshal([]byte(event.Records[0].Body), snsMessage); err != nil {
+		return h.abort(err, "Error while trying to parse the SQS message")
 	}
 
-	err = h.clientActionsUseCase.TriggerOperations(analysisDto.ToAnalysis())
-	if err != nil {
-		h.logger.Error(err, "Event failed", event, ctx, err)
-		return exceptions.HandlerError{
-			Message:         err.Error(),
-			InternalMessage: "Error while trying to run ClientActionsUseCase",
-		}
+	analysisDto := &dto.AnalysisDto{}
+	if err := json.Unmarshal([]byte(snsMessage.Records[0].SNS.Message), analysisDto); err != nil {
+		return h.abort(err, "Error while trying to parse the SNS message")
+	}
+
+	if err := h.clientActionsUseCase.TriggerOperations(analysisDto.ToAnalysis()); err != nil {
+		return h.abort(err, "Error while trying to run ClientActionsUseCase")
 	}
 
 	h.logger.Info("Event succeeded", event, ctx)
 	return nil
+}
+
+func (h *handler) abort(err error, message string) error {
+	h.logger.Error(err, "Event failed: "+message)
+	return exceptions.HandlerError{
+		Message:         err.Error(),
+		InternalMessage: message,
+	}
 }
