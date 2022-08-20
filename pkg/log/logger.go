@@ -2,8 +2,8 @@ package log
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
+	"log"
 	"sync"
 	"time"
 )
@@ -28,6 +28,7 @@ func Logger() *logger {
 	if loggerInstance == nil {
 		once.Do(
 			func() {
+				log.SetFlags(0)
 				loggerInstance = &logger{}
 				loggerInstance.TransactionId = uuid.New().String()
 			})
@@ -42,29 +43,29 @@ func (l *logger) SetCorrelationID(correlationId string) {
 
 func (l *logger) Info(message string, metadata ...interface{}) {
 	logMessage := l.generateLogMessage("INFO ", message, nil, metadata)
-	fmt.Println(logMessage)
+	log.Println(logMessage)
 }
 
 func (l *logger) Error(err error, message string, metadata ...interface{}) {
 	logMessage := l.generateLogMessage("ERROR", message, err, metadata)
-	fmt.Println(logMessage)
+	log.Println(logMessage)
 }
 
 func (l *logger) generateLogMessage(level string, message string, err error, metadata ...[]interface{}) string {
-	log := l.clone()
-	log.Level = level
-	log.Message = message
-	log.Timestamp = time.Now().Format("2022-01-01 13:01:01")
+	logg := l.clone()
+	logg.Level = level
+	logg.Message = message
+	logg.Timestamp = time.Now().Format("2022-01-01 13:01:01")
 
 	if len(metadata[0]) > 0 {
-		log.Metadata = metadata
+		logg.Metadata = metadata
 	}
 
 	if err != nil {
-		log.ErrorMsg = err.Error()
+		logg.ErrorMsg = err.Error()
 	}
 
-	logMessage, _ := json.Marshal(log)
+	logMessage, _ := json.Marshal(logg)
 	return string(logMessage)
 }
 
