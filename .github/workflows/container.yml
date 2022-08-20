@@ -67,7 +67,7 @@ jobs:
   deploy-docker:
     name: Deploy Docker image
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
