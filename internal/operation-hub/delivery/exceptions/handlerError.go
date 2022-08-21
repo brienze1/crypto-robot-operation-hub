@@ -7,5 +7,6 @@ type HandlerError struct {
 }
 
 func (err HandlerError) Error() string {
+	err.Description = "Error occurred while handling the event"
 	return err.Message
 }
