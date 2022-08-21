@@ -6,7 +6,7 @@ type HandlerError struct {
 	Description     string `json:"description"`
 }
 
-func (err HandlerError) Error() string {
+func (err *HandlerError) Error() string {
 	err.Description = "Error occurred while handling the event"
 	return err.Message
 }

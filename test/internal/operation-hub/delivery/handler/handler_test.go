@@ -104,7 +104,7 @@ func TestHandlerJsonSQSError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(exceptions.HandlerError).InternalMessage, "Error while trying to parse the SNS message")
+	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to parse the SNS message")
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
@@ -124,7 +124,7 @@ func TestHandlerJsonSNSError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(exceptions.HandlerError).InternalMessage, "Error while trying to parse the analysis object")
+	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to parse the analysis object")
 	assert.Equal(t, err.Error(), "unexpected end of JSON input")
 	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
@@ -142,7 +142,7 @@ func TestHandlerClientActionsUseCaseError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(exceptions.HandlerError).InternalMessage, "Error while trying to run ClientActionsUseCase")
+	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to run ClientActionsUseCase")
 	assert.Equal(t, err.Error(), clientActionsUseCaseError.Error())
 	assert.Equal(t, 1, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")

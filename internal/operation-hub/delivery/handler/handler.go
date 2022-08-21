@@ -51,6 +51,6 @@ func (h *handler) abort(err error, message string) error {
 		InternalMessage: message,
 	}
 
-	h.logger.Error(handlerError, "Event failed: "+message)
-	return handlerError
+	h.logger.Error(&handlerError, "Event failed: "+message)
+	return &handlerError
 }
