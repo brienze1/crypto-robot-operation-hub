@@ -103,11 +103,12 @@ jobs:
           path: './coverage.lcov'
           min_coverage: 80
           exclude: 'cmd/operation-hub/main.go **/change.dart'
-#      - name: Coveralls
-#        uses: coverallsapp/github-action@v1.1.2
-#        with:
-#          github-token: ${{ secrets.github_token }}
-#          path-to-lcov: coverage.lcov
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: coverage.lcov
 
   deploy-docker:
     name: Deploy Docker image
