@@ -8,10 +8,10 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/dto"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/exceptions"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/handler"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
+	"github.com/brienze1/crypto-robot-operation-hub/pkg/custom_error"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -104,8 +104,9 @@ func TestHandlerJsonSQSError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to parse the SNS message")
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	assert.Equal(t, "Error while trying to parse the SNS message", err.(custom_error.BaseErrorAdapter).InternalError())
+	assert.Equal(t, "Error occurred while handling the event", err.(custom_error.BaseErrorAdapter).Description())
+	assert.Equal(t, "unexpected end of JSON input", err.(custom_error.BaseErrorAdapter).Error())
 	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
 	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")
@@ -124,8 +125,9 @@ func TestHandlerJsonSNSError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to parse the analysis object")
-	assert.Equal(t, err.Error(), "unexpected end of JSON input")
+	assert.Equal(t, "Error while trying to parse the analysis object", err.(custom_error.BaseErrorAdapter).InternalError())
+	assert.Equal(t, "Error occurred while handling the event", err.(custom_error.BaseErrorAdapter).Description())
+	assert.Equal(t, "unexpected end of JSON input", err.(custom_error.BaseErrorAdapter).Error())
 	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
 	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")
@@ -142,8 +144,9 @@ func TestHandlerClientActionsUseCaseError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, err.(*exceptions.HandlerError).InternalMessage, "Error while trying to run ClientActionsUseCase")
-	assert.Equal(t, err.Error(), clientActionsUseCaseError.Error())
+	assert.Equal(t, "Error while trying to run ClientActionsUseCase", err.(custom_error.BaseErrorAdapter).InternalError())
+	assert.Equal(t, "Error occurred while handling the event", err.(custom_error.BaseErrorAdapter).Description())
+	assert.Equal(t, clientActionsUseCaseError.Error(), err.(custom_error.BaseErrorAdapter).Error())
 	assert.Equal(t, 1, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
 	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
 	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")

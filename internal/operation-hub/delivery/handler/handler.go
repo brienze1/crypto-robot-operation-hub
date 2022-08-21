@@ -46,11 +46,7 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 }
 
 func (h *handler) abort(err error, message string) error {
-	handlerError := exceptions.HandlerError{
-		Message:         err.Error(),
-		InternalMessage: message,
-	}
-
-	h.logger.Error(&handlerError, "Event failed: "+message)
-	return &handlerError
+	handlerError := exceptions.HandlerError(err, message)
+	h.logger.Error(handlerError, "Event failed: "+message)
+	return handlerError
 }

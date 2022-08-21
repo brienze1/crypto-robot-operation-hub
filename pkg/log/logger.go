@@ -2,6 +2,7 @@ package log
 
 import (
 	"encoding/json"
+	"github.com/brienze1/crypto-robot-operation-hub/pkg/custom_error"
 	"github.com/google/uuid"
 	"log"
 	"sync"
@@ -67,7 +68,8 @@ func (l *logger) generateLogMessage(level string, message string, err error, met
 	}
 
 	if err != nil {
-		logg.ErrorMsg = err.Error()
+		errorMsg, _ := json.Marshal(custom_error.BaseError(err))
+		logg.ErrorMsg = string(errorMsg)
 	}
 
 	logMessage, _ := json.Marshal(logg)
