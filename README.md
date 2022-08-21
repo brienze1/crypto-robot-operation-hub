@@ -1,5 +1,7 @@
 <div id="top"></div>
 
+![Build](https://github.com/brienze1/crypto-robot-operation-hub/actions/workflows/main.yml/badge.svg)
+
 # Crypto Data Operation Hub
 
 1. [About the Project](#about-the-project)
