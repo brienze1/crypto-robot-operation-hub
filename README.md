@@ -1,6 +1,7 @@
 <div id="top"></div>
 
 ![Build](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Build%20CI?label=build)
+[![Coverage Status](https://coveralls.io/repos/github/brienze1/crypto-robot-operation-hub/badge.svg?branch=main)](https://coveralls.io/github/brienze1/crypto-robot-operation-hub?branch=main)
 
 # Crypto Data Operation Hub
 
