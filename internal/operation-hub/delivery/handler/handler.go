@@ -50,5 +50,6 @@ func (h *handler) abort(err error, message string) error {
 	return exceptions.HandlerError{
 		Message:         err.Error(),
 		InternalMessage: message,
+		Description:     "Error occurred while handling the event",
 	}
 }
