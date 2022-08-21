@@ -99,7 +99,7 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v1
         with:
           path: './coverage.lcov'
-          min_coverage: 95
+          min_coverage: 80
           exclude: 'cmd/operation-hub/main.go **/change.dart'
 #      - name: Coveralls
 #        uses: coverallsapp/github-action@v1.1.2
