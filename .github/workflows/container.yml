@@ -95,11 +95,17 @@ jobs:
       - name: Convert coverage.out to coverage.lcov
         uses: jandelgado/gcov2lcov-action@v1
 
-      - name: Coveralls
-        uses: coverallsapp/github-action@v1.1.2
+      - name: Verify coverage percentual
+        uses: VeryGoodOpenSource/very_good_coverage@v1
         with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: coverage.lcov
+          path: './coverage.lcov'
+          min_coverage: 95
+          exclude: '**/*_observer.dart **/change.dart'
+#      - name: Coveralls
+#        uses: coverallsapp/github-action@v1.1.2
+#        with:
+#          github-token: ${{ secrets.github_token }}
+#          path-to-lcov: coverage.lcov
 
   deploy-docker:
     name: Deploy Docker image
