@@ -1,6 +1,6 @@
 <div id="top"></div>
 
-![Build](https://github.com/brienze1/crypto-robot-operation-hub/actions/workflows/main.yml/badge.svg)
+![Build](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Build%20CI?label=build)
 
 # Crypto Data Operation Hub
 
