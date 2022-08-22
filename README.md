@@ -255,21 +255,15 @@ operations, etc...
 
 ```
 {
-  "id": "asdasdASD",
-  "active" true,
-  "locked" false,
-  "cash": {
-    "amount": 100.00,
-    "reserved": 0.00,
-  },
-  "crypto": [
-    {
-        "symbol": "BTC",
-        "amount": 0.0000312
-        "reserved": 0.0
-    }
-  ],
-  "config": {
+    "id": "asdasdASD",
+    "active" true,
+    "locked_until" "20-07-2022 02:18:10",
+    "locked" false,
+    "cash_amount": 100,
+    "cash_reserved": 0.00,
+    "crypto_amount": 0.0000312,
+    "crypto_symbol": "BTC",
+    "crypto_reserved": 0.0,
     "buy_on": "STRONG_BUY",
     "sell_on": "SELL",
     "ops_timeout_seconds": 60,
@@ -280,40 +274,39 @@ operations, etc...
     "symbols": [
         "BTC",
         "SOL"
-    ]
-  },
-  "monthly_summary": {
-    "month": "08/2022",
-    "amount_sold": 23000.42,
-    "amount_bought": 37123.42,
-    "profit": 1032.32,
-    "crypto": [
-        {
-            "symbol": "BTC",
-            "average_buy_value": 230020.42,
-            "average_sell_value": 235020.42,
-            "amount_sold": 0.00231,
-            "amount_bought": 0.00431,
-            "profit": -53.00
-        }
-    ]
-  },
-  "daily_summary": {
-    "day": "14/08/2022"
-    "amount_sold": 23000.42,
-    "amount_bought": 37123.42,
-    "profit": -53.00,
-     "crypto": [
-        {
-            "symbol": "BTC",
-            "average_buy_value": 230020.42,
-            "average_sell_value": 235020.42,
-            "amount_sold": 0.00231,
-            "amount_bought": 0.00431,
-            "profit": -53.00
-        }
-    ]
-  }
+    ],
+    "monthly_summary": {
+        "month": "08/2022",
+        "amount_sold": 23000.42,
+        "amount_bought": 37123.42,
+        "profit": 1032.32,
+        "crypto": [
+            {
+                "symbol": "BTC",
+                "average_buy_value": 230020.42,
+                "average_sell_value": 235020.42,
+                "amount_sold": 0.00231,
+                "amount_bought": 0.00431,
+                "profit": -53.00
+            }
+        ]
+    },
+    "daily_summary": {
+        "day": "14/08/2022"
+        "amount_sold": 23000.42,
+        "amount_bought": 37123.42,
+        "profit": -53.00,
+        "crypto": [
+            {
+                "symbol": "BTC",
+                "average_buy_value": 230020.42,
+                "average_sell_value": 235020.42,
+                "amount_sold": 0.00231,
+                "amount_bought": 0.00431,
+                "profit": -53.00
+            }
+        ]
+    }
 }
 ```
 
@@ -334,17 +327,12 @@ Implemented:
 
 Not implemented:
 
+[//]: # (- Client must have the coin symbol selected inside `config.symbols` variable to operate it)
 - Client must be active
 - Client must not be locked
+- Current date must be greater than locked_until value
 - Client must have enough cash to buy minimum allowed amount of crypto
 - Client must have enough crypto to sell minimum allowed amount
-- Client must have the coin symbol selected inside `config.symbols` variable to operate it
-- Operations should not be triggered after monthly sell cap has been reached
-    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly
-      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,
-      because when the operation is completed and the crypto is sold the expectation is that the value should be equal
-      or close to the bought amount (witch mas of 2500) totalizing 25.000,00 monthly sell value.
-    - If monthly cap is 0 it can be ignored.
 - Buy operations should be triggered when the summary received is equal or less restricting than the `config.buy_on`
   value.
     - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
@@ -353,6 +341,13 @@ Not implemented:
   value.
     - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
       be allowed, and the opposite should be denied.
+
+- Operations should not be triggered after monthly sell cap has been reached
+    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly
+      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,
+      because when the operation is completed and the crypto is sold the expectation is that the value should be equal
+      or close to the bought amount (witch mas of 2500) totalizing 25.000,00 monthly sell value.
+    - If monthly cap is 0 it can be ignored.
 - Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to
   the `config.day_stop_loss` value.
     - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values
