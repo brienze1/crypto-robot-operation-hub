@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/adapters"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
+	"github.com/brienze1/crypto-robot-operation-hub/pkg/custom_error"
 	logg "github.com/brienze1/crypto-robot-operation-hub/pkg/log"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +21,7 @@ var (
 	testMessage       string
 	testMetadata1     interface{}
 	testMetadata2     interface{}
-	testError         error
+	testError         custom_error.BaseErrorAdapter
 )
 
 func setup() {
@@ -32,7 +33,7 @@ func setup() {
 	testMessage = uuid.NewString()
 	testMetadata1 = map[string]interface{}{"Key1": 123, "Key2": "value2", "Test": uuid.NewString()}
 	testMetadata2 = map[string]interface{}{"Key3": 1234, "Key4": "value3", "Test2": uuid.NewString()}
-	testError = errors.New("test error message")
+	testError = custom_error.NewBaseError(errors.New("test error message"))
 }
 
 func teardown() {

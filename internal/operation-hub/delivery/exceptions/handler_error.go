@@ -1,27 +1,7 @@
 package exceptions
 
-type handlerError struct {
-	message       string
-	internalError string
-	description   string
-}
+import "github.com/brienze1/crypto-robot-operation-hub/pkg/custom_error"
 
-func HandlerError(err error, internalError string) *handlerError {
-	return &handlerError{
-		message:       err.Error(),
-		internalError: internalError,
-		description:   "Error occurred while handling the event",
-	}
-}
-
-func (h *handlerError) Error() string {
-	return h.message
-}
-
-func (h *handlerError) InternalError() string {
-	return h.internalError
-}
-
-func (h *handlerError) Description() string {
-	return h.description
+func HandlerError(err error, internalError string) *custom_error.BaseError {
+	return custom_error.NewBaseError(err, internalError, "Error occurred while handling the event")
 }

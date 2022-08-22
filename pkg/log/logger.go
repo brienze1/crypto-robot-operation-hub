@@ -68,7 +68,7 @@ func (l *logger) generateLogMessage(level string, message string, err error, met
 	}
 
 	if err != nil {
-		errorMsg, _ := json.Marshal(custom_error.BaseError(err))
+		errorMsg, _ := json.Marshal(custom_error.NewBaseError(err))
 		logg.ErrorMsg = string(errorMsg)
 	}
 

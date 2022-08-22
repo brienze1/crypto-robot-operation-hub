@@ -43,7 +43,7 @@ func setup() {
 func TestBaseExceptionFromErrorSuccess(t *testing.T) {
 	setup()
 
-	baseError := custom_error.BaseError(errorTest)
+	baseError := custom_error.NewBaseError(errorTest)
 
 	assert.Equal(t, errorTest.Error(), baseError.Message)
 	assert.Equal(t, "", baseError.InternalMessage)
@@ -53,7 +53,7 @@ func TestBaseExceptionFromErrorSuccess(t *testing.T) {
 func TestBaseExceptionFromBaseErrorSuccess(t *testing.T) {
 	setup()
 
-	baseError := custom_error.BaseError(baseErrorTest)
+	baseError := custom_error.NewBaseError(baseErrorTest)
 
 	assert.Equal(t, baseErrorTest.Message, baseError.Message)
 	assert.Equal(t, baseErrorTest.InternalMessage, baseError.InternalMessage)
