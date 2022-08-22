@@ -1,3 +1,5 @@
+name: Docker Deploy
+
 on:
   workflow_run:
     workflows:
@@ -7,8 +9,6 @@ on:
       - develop
     types:
       - completed
-
-name: Docker Deploy
 
 jobs:
   deploy-docker:
