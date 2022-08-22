@@ -2,8 +2,6 @@ name: Docker Deploy
 
 on:
   workflow_call:
-    workflows:
-      - Build
 
 jobs:
   deploy-docker:

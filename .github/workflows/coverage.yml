@@ -2,8 +2,6 @@ name: Coverage
 
 on:
   workflow_call:
-    workflows:
-      - Build
 
 jobs:
   coverage:
