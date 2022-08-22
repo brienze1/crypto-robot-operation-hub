@@ -8,20 +8,16 @@ on:
 
 jobs:
   lint:
-    name: Lint
     uses: ./.github/workflows/lint.yml
 
   test:
-    name: Test
     needs: lint
     uses: ./.github/workflows/test.yml
 
   coverage:
-    name: Coverage
     needs: test
     uses: ./.github/workflows/coverage.yml
 
   deploy-docker:
-    name: Deploy Docker
     needs: coverage
     uses: ./.github/workflows/deploy_docker.yml
