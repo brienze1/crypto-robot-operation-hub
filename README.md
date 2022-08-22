@@ -1,6 +1,8 @@
 <div id="top"></div>
 
-![Build](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Build%20CI?label=build)
+![Lint](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Lint?label=Lint)
+![Tests](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Test?label=Tests)
+![Docker Deploy](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Docker%20Deploy?label=Docker%20Deploy)
 [![Coverage Status](https://coveralls.io/repos/github/brienze1/crypto-robot-operation-hub/badge.svg?branch=main)](https://coveralls.io/github/brienze1/crypto-robot-operation-hub?branch=main)
 
 # Crypto Data Operation Hub
