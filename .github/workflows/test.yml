@@ -4,14 +4,65 @@ on:
   workflow_call:
 
 jobs:
-  test:
-    name: Test
-    strategy:
-      matrix:
-        go-version: [ 1.19 ]
-        platform: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.platform }}
-#    runs-on: ubuntu-latest
+  test-linux:
+    name: Test on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run unit test
+        run: go test -v ./...
+
+  test-windows:
+    name: Test on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run unit test
+        run: go test -v ./...
+
+  test-mac:
+    name: Test on MacOs
+    runs-on: macos-latest
     steps:
       - name: Setup cache
         uses: actions/cache@v3
