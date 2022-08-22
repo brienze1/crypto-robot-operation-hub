@@ -1,8 +1,12 @@
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Lint
     branches:
       - main
       - develop
+    types:
+      - completed
 
 name: Build CI
 
