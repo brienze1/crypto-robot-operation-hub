@@ -11,11 +11,12 @@ jobs:
     uses: ./.github/workflows/lint.yml
 
   test:
-    needs: lint
     uses: ./.github/workflows/test.yml
 
   coverage:
-    needs: test
+    needs:
+      - test
+      - lint
     uses: ./.github/workflows/coverage.yml
 
   deploy-docker:
