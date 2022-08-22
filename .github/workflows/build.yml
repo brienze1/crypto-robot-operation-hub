@@ -21,7 +21,7 @@ jobs:
   deploy-docker:
     needs: coverage
     uses: ./.github/workflows/deploy_docker.yml
-    with:
+    secrets:
       username: ${{ secrets.DOCKER_HUB_USERNAME }}
       app_name: ${{ secrets.DOCKER_HUB_APP_NAME }}
       token: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
