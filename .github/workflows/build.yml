@@ -11,18 +11,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Setup go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
+      - name: Lint
+        uses: ./.github/workflows/lint.yml
 
   test:
     name: Test
@@ -34,29 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
-      - name: Setup cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Run unit test
-        run: go test -v ./...
+      - name: Test
+        uses: ./.github/workflows/test.yml
 
   coverage:
     name: Coverage
@@ -64,12 +33,12 @@ jobs:
     needs: test
     steps:
       - name: Deploy / Coverage
-        uses: ./github/workflows/coverage
+        uses: ./.github/workflows/coverage.yml
 
   deploy-docker:
     name: Deploy Docker image
     runs-on: ubuntu-latest
-    needs: test
+    needs: coverage
     steps:
       - name: Deploy / Docker Image
-        uses: ./github/workflows/deploy_docker
+        uses: ./github/workflows/deploy_docker.yml
