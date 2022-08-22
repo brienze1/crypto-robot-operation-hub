@@ -1,0 +1,54 @@
+on:
+  workflow_run:
+    workflows:
+      - Test
+    branches:
+      - main
+      - develop
+    types:
+      - completed
+
+name: Coverage
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install Go
+        if: success()
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Calc coverage.yml
+        run: |
+          go test ./... -v -covermode=count -coverprofile=coverage.out -coverpkg=.../brienze1/.../internal/...,.../brienze1/.../pkg/...
+
+      - name: Convert coverage.yml.out to coverage.yml.lcov
+        uses: jandelgado/gcov2lcov-action@v1
+
+      - name: Verify coverage.yml percentage
+        uses: VeryGoodOpenSource/very_good_coverage@v1
+        with:
+          path: './coverage.yml.lcov'
+          min_coverage: 80
+          exclude: 'cmd/operation-hub/main.go **/change.dart'
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: coverage.yml.lcov
