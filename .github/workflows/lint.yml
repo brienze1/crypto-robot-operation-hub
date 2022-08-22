@@ -2,9 +2,6 @@ name: Lint
 
 on:
   workflow_call:
-    workflows:
-      - Build
-
 
 jobs:
   lint:

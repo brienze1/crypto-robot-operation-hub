@@ -9,34 +9,19 @@ on:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Lint
-        uses: ./.github/workflows/lint.yml
+    uses: ./.github/workflows/lint.yml
 
   test:
     name: Test
-    runs-on: ubuntu-latest
     needs: lint
-    steps:
-      - name: Test
-        uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test.yml
 
   coverage:
     name: Coverage
-    runs-on: ubuntu-latest
     needs: test
-    steps:
-      - name: Deploy / Coverage
-        uses: ./.github/workflows/coverage.yml
+    uses: ./.github/workflows/coverage.yml
 
   deploy-docker:
     name: Deploy Docker image
-    runs-on: ubuntu-latest
     needs: coverage
-    steps:
-      - name: Deploy / Docker Image
-        uses: ./github/workflows/deploy_docker.yml
+    uses: ./github/workflows/deploy_docker.yml
