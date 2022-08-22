@@ -23,7 +23,7 @@ func Handler(operationUseCase adapters.OperationUseCaseAdapter, logger adapters.
 	}
 }
 
-func (h *handler) Handle(context context.Context, event events.SQSEvent) custom_error.BaseErrorAdapter {
+func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 	ctx, _ := lambdacontext.FromContext(context)
 	h.logger.SetCorrelationID(ctx.AwsRequestID)
 	h.logger.Info("Event received", event, ctx)

@@ -15,10 +15,10 @@ type BaseError struct {
 func NewBaseError(err error, messages ...string) *BaseError {
 	internalMessage := ""
 	description := ""
-	if messages != nil && len(messages) > 0 {
+	if len(messages) > 0 {
 		internalMessage = messages[0]
 	}
-	if messages != nil && len(messages) > 1 {
+	if len(messages) > 1 {
 		description = messages[1]
 	}
 
