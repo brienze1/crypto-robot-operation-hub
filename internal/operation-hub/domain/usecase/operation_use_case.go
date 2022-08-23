@@ -1,9 +1,11 @@
 package usecase
 
 import (
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/operation_type"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/summary"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/symbol"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/exceptions"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
 	"time"
@@ -11,18 +13,18 @@ import (
 
 type operationUseCase struct {
 	logger            adapters.LoggerAdapter
-	cryptoService     adapters.CryptoServiceAdapter
+	cryptoWebService  adapters.CryptoWebServiceAdapter
 	clientPersistence adapters.ClientPersistenceAdapter
 	eventService      adapters.EventServiceAdapter
 }
 
 func OperationUseCase(logger adapters.LoggerAdapter,
-	cryptoService adapters.CryptoServiceAdapter,
+	cryptoWebService adapters.CryptoWebServiceAdapter,
 	clientPersistence adapters.ClientPersistenceAdapter,
 	eventService adapters.EventServiceAdapter) *operationUseCase {
 	return &operationUseCase{
 		logger:            logger,
-		cryptoService:     cryptoService,
+		cryptoWebService:  cryptoWebService,
 		clientPersistence: clientPersistence,
 		eventService:      eventService,
 	}
@@ -39,20 +41,15 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 
 	switch operationSummary.OperationType() {
 	case operation_type.Buy:
-		amount, err := o.cryptoService.GetMinTradeCashAmount()
+		quote, err := o.cryptoWebService.GetCryptoCurrentQuote(symbol.Bitcoin)
 		if err != nil {
-			return o.abort(err, "Error while trying to get minimum trade cash amount")
+			return o.abort(err, "Error while trying to get crypto current quote")
 		}
 
-		clientSearchConfig.MinimumCash = amount
+		clientSearchConfig.MinimumCash = properties.Properties().MinimumCryptoSellOperation * quote
 		clientSearchConfig.BuyWeight = operationSummary
 	case operation_type.Sell:
-		amount, err := o.cryptoService.GetMinTradeCryptoAmount()
-		if err != nil {
-			return o.abort(err, "Error while trying to get minimum trade crypto amount")
-		}
-
-		clientSearchConfig.MinimumCrypto = amount
+		clientSearchConfig.MinimumCrypto = properties.Properties().MinimumCryptoSellOperation
 		clientSearchConfig.SellWeight = operationSummary
 	default:
 		return o.abort(nil, "Operation must be of Buy or Sell type")

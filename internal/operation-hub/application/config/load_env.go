@@ -30,3 +30,16 @@ func load(file string) {
 		log.Fatal("Error loading .env file")
 	}
 }
+
+type env string
+
+const (
+	test env = "test"
+)
+
+func SetTestEnv() {
+	err := os.Setenv("OPERATION_HUB_ENV", string(test))
+	if err != nil {
+		panic("error while trying to set env variable")
+	}
+}
