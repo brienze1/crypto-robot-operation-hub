@@ -12,13 +12,9 @@ func TestLoadEnvSuccess(t *testing.T) {
 	err := os.Setenv("OPERATION_HUB_ENV", "test")
 	assert.Nil(t, err)
 
-	defer func() {
-		r := recover()
+	panicFunction := func() { config.LoadEnv() }
 
-		assert.Nil(t, r)
-	}()
-
-	config.LoadEnv()
+	assert.NotPanicsf(t, panicFunction, "Should not panic")
 }
 
 func TestLoadEnvFailure(t *testing.T) {
