@@ -37,9 +37,11 @@ const (
 	test env = "test"
 )
 
-func SetTestEnv() {
+func LoadTestEnv() {
 	err := os.Setenv("OPERATION_HUB_ENV", string(test))
 	if err != nil {
 		panic("error while trying to set env variable")
 	}
+
+	LoadEnv()
 }

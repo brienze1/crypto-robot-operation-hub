@@ -7,8 +7,9 @@ import (
 )
 
 type properties struct {
-	MinimumCryptoSellOperation float64
-	MinimumCryptoBuyOperation  float64
+	MinimumCryptoSellOperation        float64
+	MinimumCryptoBuyOperation         float64
+	BinanceCryptoSymbolPriceTickerUrl string
 }
 
 var once sync.Once
@@ -35,9 +36,11 @@ func loadProperties() *properties {
 	if err != nil {
 		panic("Failed to load property \"MINIMUM_CRYPTO_SELL_OPERATION\" from environment")
 	}
+	binanceCryptoSymbolPriceTickerUrl := os.Getenv("BINANCE_CRYPTO_SYMBOL_PRICE_TICKER_URL")
 
 	return &properties{
-		MinimumCryptoSellOperation: minimumCryptoSellOperation,
-		MinimumCryptoBuyOperation:  minimumCryptoBuyOperation,
+		MinimumCryptoSellOperation:        minimumCryptoSellOperation,
+		MinimumCryptoBuyOperation:         minimumCryptoBuyOperation,
+		BinanceCryptoSymbolPriceTickerUrl: binanceCryptoSymbolPriceTickerUrl,
 	}
 }

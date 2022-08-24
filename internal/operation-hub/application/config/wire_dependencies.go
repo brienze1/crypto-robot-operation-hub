@@ -8,11 +8,16 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/persistence"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/webservice"
 	"github.com/brienze1/crypto-robot-operation-hub/pkg/log"
+	"net/http"
+	"time"
 )
 
 func WireDependencies() adapters.HandlerAdapter {
 	logger := log.Logger()
-	cryptoWebService := webservice.BinanceWebService()
+	client := http.Client{
+		Timeout: 30 * time.Second,
+	}
+	cryptoWebService := webservice.BinanceWebService(logger, &client)
 	clientPersistence := persistence.ClientPersistence()
 	eventService := event.SNSEventService()
 	operationUseCase := usecase.OperationUseCase(logger, cryptoWebService, clientPersistence, eventService)

@@ -78,7 +78,7 @@ var (
 )
 
 func setup() {
-	config.SetTestEnv()
+	config.LoadTestEnv()
 	config.LoadEnv()
 
 	loggerInfoCounter = 0

@@ -31,7 +31,7 @@ func OperationUseCase(logger adapters.LoggerAdapter,
 }
 
 func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) error {
-	o.logger.Info("Trigger Operations start", operationSummary)
+	o.logger.Info("Trigger operations start", operationSummary)
 
 	clientSearchConfig := model.ClientSearchConfig{
 		Active:      true,
@@ -66,12 +66,12 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 		}
 	}
 
-	o.logger.Info("Trigger Operations finish", operationSummary, clientSearchConfig, clients)
+	o.logger.Info("Trigger operations finish", operationSummary, clientSearchConfig, clients)
 	return nil
 }
 
 func (o *operationUseCase) abort(err error, message string) error {
 	operationError := exceptions.OperationError(err, message)
-	o.logger.Error(operationError, "Trigger Operations failed: "+message)
+	o.logger.Error(operationError, "Trigger operations failed: "+message)
 	return operationError
 }
