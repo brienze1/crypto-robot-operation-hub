@@ -18,9 +18,10 @@ var propertiesInstance *properties
 
 func Properties() *properties {
 	if propertiesInstance == nil {
+		propertiesLoaded := loadProperties()
 		once.Do(
 			func() {
-				propertiesInstance = loadProperties()
+				propertiesInstance = propertiesLoaded
 			})
 	}
 
@@ -34,7 +35,7 @@ func loadProperties() *properties {
 	}
 	minimumCryptoBuyOperation, err := strconv.ParseFloat(os.Getenv("MINIMUM_CRYPTO_BUY_OPERATION"), 64)
 	if err != nil {
-		panic("Failed to load property \"MINIMUM_CRYPTO_SELL_OPERATION\" from environment")
+		panic("Failed to load property \"MINIMUM_CRYPTO_BUY_OPERATION\" from environment")
 	}
 	binanceCryptoSymbolPriceTickerUrl := os.Getenv("BINANCE_CRYPTO_SYMBOL_PRICE_TICKER_URL")
 

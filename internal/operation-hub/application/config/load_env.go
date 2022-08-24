@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/joho/godotenv"
-	"log"
 	"os"
 	"regexp"
 )
@@ -27,7 +26,7 @@ func load(file string) {
 
 	err := godotenv.Load(string(rootPath) + configDirPath + file)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		panic("Error loading .env file")
 	}
 }
 
@@ -38,10 +37,7 @@ const (
 )
 
 func LoadTestEnv() {
-	err := os.Setenv("OPERATION_HUB_ENV", string(test))
-	if err != nil {
-		panic("error while trying to set env variable")
-	}
+	_ = os.Setenv("OPERATION_HUB_ENV", string(test))
 
 	LoadEnv()
 }
