@@ -13,7 +13,7 @@ func LoadEnv() {
 	env := os.Getenv("OPERATION_HUB_ENV")
 
 	if "" == env {
-		env = "local"
+		env = "development"
 	}
 	load(".env." + env)
 	load(".env") // The Original .env

@@ -60,7 +60,7 @@ func (c clientPersistenceMock) GetClients(model.ClientSearchConfig) ([]model.Cli
 	return clients, clientPersistenceGetClientsError
 }
 
-func (e eventServiceMock) Send(model.Client) error {
+func (e eventServiceMock) Send(interface{}) error {
 	eventServiceSendCounter++
 	return eventServiceSendError
 }

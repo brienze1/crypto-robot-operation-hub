@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-var once sync.Once
-
 type (
 	logger struct {
 		Timestamp     string      `json:"timestamp"`
@@ -27,6 +25,8 @@ const (
 	infoLevel  string = "INFO "
 	errorLevel string = "ERROR"
 )
+
+var once sync.Once
 
 var loggerInstance *logger
 
