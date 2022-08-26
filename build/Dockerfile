@@ -1,18 +1,18 @@
 FROM golang:1.19.0-alpine
 
-WORKDIR /usr/src
+WORKDIR src/usr/crypto-robot-operation-hub
 
 # copy source code to container
 COPY . .
 
 # build go binary
 RUN go mod download
-RUN GOPATH=$GOPATH:/root go build -o crypto-robot-operation-hub/operation-hub cmd/operation-hub/main.go
+RUN go build -o crypto-robot-operation-hub/operation-hub cmd/operation-hub/main.go
 
 # copy env files
-RUN mkdir -p /usr/src/crypto-robot-operation-hub/config
-COPY config/.env ./crypto-robot-operation-hub/config
-COPY config/.env.localstack ./crypto-robot-operation-hub/config
+RUN mkdir -p /crypto-robot-operation-hub/config
+COPY ../config/.env ./crypto-robot-operation-hub/config
+COPY ../config/.env.localstack ./crypto-robot-operation-hub/config
 
 # Install zip in container
 RUN apk update

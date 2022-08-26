@@ -326,6 +326,7 @@ Implemented:
 Not implemented:
 
 [//]: # (- Client must have the coin symbol selected inside `config.symbols` variable to operate it)
+
 - Client must be active
 - Client must not be locked
 - Current date must be greater than locked_until value
@@ -453,13 +454,13 @@ Obs: Make sure Docker is running before.
 
     - Windows/macOS/Linux/WSL
       ```bash
-      docker-compose up
+      docker-compose -f ./build/local/docker-compose.yml up
       ```
 
 - To stop localstack:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker-compose down
+      docker-compose -f ./build/local/docker-compose.yml down
       ```
 
 ### Usage
@@ -479,13 +480,14 @@ Obs: Make sure Docker is running before.
   Dockerfile:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker build -t crypto-robot-operation-hub .
+      docker build -f ./build/Dockerfile -t crypto-robot-operation-hub .
       ```
 
 - And then run the new created image:
     - Windows/macOS/Linux/WSL
-      ```bash
-      docker run --network="host" -d -it crypto-robot-operation-hub bash -c "./crypto-robot-operation-hub/operation-hub"
+      ```sh
+      docker run --network="host" -d -it crypto-robot-operation-hub bash \
+      -c "OPERATION_HUB_ENV=localstack go run ./cmd/local/main_local.go"
       ```
 
 ### Testing
