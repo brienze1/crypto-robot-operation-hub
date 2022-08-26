@@ -3,7 +3,7 @@ FROM golang:1.19.0-alpine
 WORKDIR src/usr/crypto-robot-operation-hub
 
 # copy source code to container
-COPY build .
+COPY . .
 
 # build go binary
 RUN go mod download
