@@ -482,7 +482,7 @@ Obs: Make sure Docker is running before.
   Dockerfile:
     - Windows/macOS/Linux/WSL
       ```bash
-      docker build -f ./build/Dockerfile -t crypto-robot-operation-hub .
+      docker build -t crypto-robot-operation-hub .
       ```
 
 - And then run the new created image:
