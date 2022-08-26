@@ -1,10 +1,11 @@
 <div id="top"></div>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/brienze1/crypto-robot-operation-hub/blob/main/LICENSE)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/brienze1/crypto-robot-operation-hub)
 ![Build](https://img.shields.io/github/workflow/status/brienze1/crypto-robot-operation-hub/Build?label=Build)
 [![Coverage Status](https://coveralls.io/repos/github/brienze1/crypto-robot-operation-hub/badge.svg?branch=main)](https://coveralls.io/github/brienze1/crypto-robot-operation-hub?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/brienze1/crypto-robot-operation-hub)](https://goreportcard.com/report/github.com/brienze1/crypto-robot-operation-hub)
-[![Golang](https://img.shields.io/badge/Language-go1.19+-blue.svg)](https://go.dev/)
+[![Golang](https://img.shields.io/github/go-mod/go-version/brienze1/crypto-robot-operation-hub)](https://go.dev/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/brienze1/crypto-robot-operation-hub.svg)](https://pkg.go.dev/github.com/brienze1/crypto-robot-operation-hub)
 
 # Crypto Data Operation Hub
