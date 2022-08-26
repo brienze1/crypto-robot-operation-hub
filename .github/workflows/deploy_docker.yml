@@ -27,7 +27,7 @@ jobs:
       - name: Build and Push to Docker Hub
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: "{{defaultContext}}:build"
           push: true
           tags: |
             ${{ secrets.username }}/${{ secrets.app_name }}:latest
