@@ -526,6 +526,6 @@ general from unit/integrated
 testing using TDD and BDD, to performance testing apps with JMeter for example.
 
 If you want to talk to me, please fell free to reach me anytime at [LinkedIn](https://www.linkedin.com/in/luisbrienze/)
-or [e-mail](mailto:lfbrienze@gmail.com?subject=GitHUB Crypto robot operation hub).
+or [e-mail](mailto:lfbrienze@gmail.com?subject=[GitHUB]%20Crypto%20robot%20operation%20hub).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
