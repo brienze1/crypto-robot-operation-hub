@@ -32,6 +32,7 @@
         1. [Manual Input](#manual-input)
         2. [Docker Input](#docker-input)
     5. [Testing](#testing)
+3. [About Me](#about-me)
 
 ## About the Project
 
@@ -500,5 +501,31 @@ Obs: Make sure Docker is running before.
       ```bash
       go test ./...
       ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## About me
+
+Hello! :)
+
+My name is Luis Brienze, and I'm a Software Engineer.
+
+I focus primarily on software development, but I'm also good at system architecture, mentoring other developers,
+etc... I've been in the IT industry for 4+ years, during this time I worked for companies like Itau, Dock, Imagine
+Learning and
+EPAM.
+
+I graduated from UNESP studying Automation and Control Engineering in 2022, and I also took multiple courses on Udemy
+and Alura.
+
+My main stack is Java, but I'm also pretty good working with Kotlin and Typescript (both server side).
+I have quite a good knowledge of AWS Cloud, and I'm also very conformable working with Docker.
+
+During my career, while working with QA's, I've also gained a lot of valuable experience with testing applications in
+general from unit/integrated
+testing using TDD and BDD, to performance testing apps with JMeter for example.
+
+If you want to talk to me, please fell free to reach me anytime at [LinkedIn](https://www.linkedin.com/in/luisbrienze/)
+or [e-mail](lfbrienze@gmail.com).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
