@@ -1,9 +1,10 @@
 package eventservice
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
-	sns2 "github.com/aws/aws-sdk-go/service/sns"
+	sns2 "github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
@@ -48,7 +49,7 @@ func (l loggerMock) Error(error, string, ...interface{}) {
 	loggerErrorCounter++
 }
 
-func (s snsMock) Publish(input *sns2.PublishInput) (*sns2.PublishOutput, error) {
+func (s snsMock) Publish(_ context.Context, input *sns2.PublishInput, _ ...func(*sns2.Options)) (*sns2.PublishOutput, error) {
 	snsPublishCounter++
 	snsPublishInput = *input
 

@@ -36,7 +36,7 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 	clientSearchConfig := model.ClientSearchConfig{
 		Active:      true,
 		Locked:      false,
-		LockedUntil: time.Now(),
+		LockedUntil: time.Now().String(),
 	}
 
 	switch operationSummary.OperationType() {
@@ -48,9 +48,11 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 
 		clientSearchConfig.MinimumCash = properties.Properties().MinimumCryptoSellOperation * quote
 		clientSearchConfig.BuyWeight = operationSummary
+		clientSearchConfig.SellWeight = summary.StrongSell
 	case operation_type.Sell:
 		clientSearchConfig.MinimumCrypto = properties.Properties().MinimumCryptoSellOperation
 		clientSearchConfig.SellWeight = operationSummary
+		clientSearchConfig.BuyWeight = summary.StrongBuy
 	default:
 		return o.abort(nil, "Operation must be of Buy or Sell type")
 	}
@@ -60,7 +62,7 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 		return o.abort(err, "Error while trying to find clients")
 	}
 
-	for _, client := range clients {
+	for _, client := range *clients {
 		if err := o.eventService.Send(client); err != nil {
 			return o.abort(err, "Error while trying to send event")
 		}

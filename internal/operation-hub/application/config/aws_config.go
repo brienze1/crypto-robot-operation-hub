@@ -1,58 +1,85 @@
 package config
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sns"
+	"context"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"sync"
 )
 
 var (
-	sessionInit sync.Once
-	snsInit     sync.Once
+	sessionInit  sync.Once
+	snsInit      sync.Once
+	dynamoDBInit sync.Once
 )
 
 var (
-	awsSession *session.Session
-	snsClient  *sns.SNS
+	awsConfig      *aws.Config
+	snsClient      *sns.Client
+	dynamoDbClient *dynamodb.Client
 )
 
-func newSession() *session.Session {
-	if awsSession == nil {
+func newSession() *aws.Config {
+	if awsConfig == nil {
 		sessionInit.Do(
 			func() {
-				if properties.Properties().Aws.OverrideConfig {
-					awsSession = session.Must(session.NewSession(&aws.Config{
-						Credentials: credentials.NewStaticCredentials(
-							properties.Properties().Aws.AccessKey,
-							properties.Properties().Aws.AccessSecret,
-							properties.Properties().Aws.Token,
-						),
-						Endpoint: properties.Properties().Aws.URL,
-						Region:   properties.Properties().Aws.Region,
-					}))
+				if properties.Properties().Aws.Config.OverrideConfig {
+					endpointResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+						return aws.Endpoint{
+							PartitionID:       "aws",
+							URL:               properties.Properties().Aws.Config.URL,
+							SigningRegion:     properties.Properties().Aws.Config.Region,
+							HostnameImmutable: true,
+						}, nil
+					})
+
+					newAwsConfig, err := config.LoadDefaultConfig(context.TODO(),
+						config.WithEndpointResolverWithOptions(endpointResolver),
+						config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+							properties.Properties().Aws.Config.AccessKey,
+							properties.Properties().Aws.Config.AccessSecret,
+							properties.Properties().Aws.Config.Token)))
+					if err != nil {
+						panic("configuration error, " + err.Error())
+					}
+					awsConfig = &newAwsConfig
 				} else {
-					awsSession = session.Must(session.NewSessionWithOptions(session.Options{
-						SharedConfigState: session.SharedConfigEnable,
-					}))
+					newAwsConfig, err := config.LoadDefaultConfig(context.TODO())
+					if err != nil {
+						panic("configuration error, " + err.Error())
+					}
+					awsConfig = &newAwsConfig
 				}
 			})
 	}
 
-	return awsSession
+	return awsConfig
 }
 
-func SNSClient() *sns.SNS {
-	if awsSession == nil {
-		snsInit.Do(
-			func() {
-				newSession := newSession()
+func SNSClient() *sns.Client {
+	if awsConfig == nil {
+		snsInit.Do(func() {
+			cfg := newSession()
 
-				snsClient = sns.New(newSession)
-			})
+			snsClient = sns.NewFromConfig(*cfg)
+		})
 	}
 
 	return snsClient
+}
+
+func DynamoDBClient() *dynamodb.Client {
+	if awsConfig == nil {
+		dynamoDBInit.Do(func() {
+			cfg := newSession()
+
+			dynamoDbClient = dynamodb.NewFromConfig(*cfg)
+		})
+	}
+
+	return dynamoDbClient
 }

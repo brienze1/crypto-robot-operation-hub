@@ -31,16 +31,17 @@ echo "########### Creating DynamoDB 'crypto_robot.clients' table ###########"
 aws dynamodb create-table \
 --table-name crypto_robot.clients  \
 --attribute-definitions AttributeName=client_id,AttributeType=S \
-AttributeName=locked_until,AttributeType=S \
 AttributeName=active,AttributeType=B \
+AttributeName=locked_until,AttributeType=S \
 AttributeName=locked,AttributeType=B \
 AttributeName=cash_amount,AttributeType=N \
 AttributeName=crypto_amount,AttributeType=N \
 AttributeName=buy_on,AttributeType=N \
 AttributeName=sell_on,AttributeType=N \
---key-schema AttributeName=client_id,KeyType=HASH AttributeName=locked_until,KeyType=RANGE \
+--key-schema AttributeName=client_id,KeyType=HASH \
 --global-secondary-indexes "[ \
 {\"IndexName\":\"active-index\",\"KeySchema\":[{\"AttributeName\":\"active\",\"KeyType\":\"HASH\"}],\"Projection\":{\"ProjectionType\":\"ALL\"},\"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}, \
+{\"IndexName\":\"locked_until-index\",\"KeySchema\":[{\"AttributeName\":\"locked_until\",\"KeyType\":\"HASH\"}],\"Projection\":{\"ProjectionType\":\"ALL\"},\"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}, \
 {\"IndexName\":\"locked-index\",\"KeySchema\":[{\"AttributeName\":\"locked\",\"KeyType\":\"HASH\"}],\"Projection\":{\"ProjectionType\":\"ALL\"},\"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}, \
 {\"IndexName\":\"cash_amount-index\",\"KeySchema\":[{\"AttributeName\":\"cash_amount\",\"KeyType\":\"HASH\"}],\"Projection\":{\"ProjectionType\":\"ALL\"},\"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}, \
 {\"IndexName\":\"crypto_amount-index\",\"KeySchema\":[{\"AttributeName\":\"crypto_amount\",\"KeyType\":\"HASH\"}],\"Projection\":{\"ProjectionType\":\"ALL\"},\"ProvisionedThroughput\":{\"ReadCapacityUnits\":5,\"WriteCapacityUnits\":5}}, \

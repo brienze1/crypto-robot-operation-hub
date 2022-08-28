@@ -1,8 +1,9 @@
 package eventservice
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/aws/aws-sdk-go/service/sns"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
@@ -35,7 +36,7 @@ func (s *snsEventService) Send(messageObject interface{}) error {
 		TopicArn: &properties.Properties().CryptoOperationTriggerTopicArn,
 	}
 
-	result, err := s.sns.Publish(publishInput)
+	result, err := s.sns.Publish(context.TODO(), publishInput)
 	if err != nil {
 		return s.abort(err, "Error while trying to publish", publishInput)
 	}

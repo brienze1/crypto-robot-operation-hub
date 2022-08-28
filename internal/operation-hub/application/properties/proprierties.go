@@ -12,12 +12,21 @@ type properties struct {
 	MinimumCryptoBuyOperation         float64
 	BinanceCryptoSymbolPriceTickerUrl string
 	CryptoOperationTriggerTopicArn    string
-	Aws                               *awsConfig
+	Aws                               *aws
+}
+
+type aws struct {
+	Config   *awsConfig
+	DynamoDB *dynamoDB
+}
+
+type dynamoDB struct {
+	ClientTableName string
 }
 
 type awsConfig struct {
-	Region         *string
-	URL            *string
+	Region         string
+	URL            string
 	AccessKey      string
 	AccessSecret   string
 	Token          string
@@ -52,15 +61,7 @@ func loadProperties() *properties {
 	awsAccessSecret := os.Getenv("AWS_ACCESS_SECRET")
 	awsAccessToken := os.Getenv("AWS_ACCESS_TOKEN")
 	awsOverrideConfig := getBoolEnvVariable("AWS_OVERRIDE_CONFIG")
-
-	awsConfig := &awsConfig{
-		Region:         &awsRegion,
-		URL:            &awsURL,
-		AccessKey:      awsAccessKey,
-		AccessSecret:   awsAccessSecret,
-		Token:          awsAccessToken,
-		OverrideConfig: awsOverrideConfig,
-	}
+	clientTableName := os.Getenv("AWS_DYNAMODB_CLIENT_TABLE_NAME")
 
 	return &properties{
 		Profile:                           profile,
@@ -68,7 +69,19 @@ func loadProperties() *properties {
 		MinimumCryptoBuyOperation:         minimumCryptoBuyOperation,
 		BinanceCryptoSymbolPriceTickerUrl: binanceCryptoSymbolPriceTickerUrl,
 		CryptoOperationTriggerTopicArn:    cryptoOperationTriggerTopicArn,
-		Aws:                               awsConfig,
+		Aws: &aws{
+			Config: &awsConfig{
+				Region:         awsRegion,
+				URL:            awsURL,
+				AccessKey:      awsAccessKey,
+				AccessSecret:   awsAccessSecret,
+				Token:          awsAccessToken,
+				OverrideConfig: awsOverrideConfig,
+			},
+			DynamoDB: &dynamoDB{
+				ClientTableName: clientTableName,
+			},
+		},
 	}
 }
 

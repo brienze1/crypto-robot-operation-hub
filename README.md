@@ -371,7 +371,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 #### Dependencies
 
 - [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
-- [aws/aws-sdk-go](https://github.com/aws/aws-sdk-go): Used in SNS integration 
+- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS integration 
 - [google/uuid](https://github.com/google/uuid): Used to generate uuids
 - [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
 

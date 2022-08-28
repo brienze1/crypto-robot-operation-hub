@@ -10,7 +10,7 @@ import (
 func setup() {
 	config.LoadTestEnv()
 
-	properties.Properties().Aws.OverrideConfig = false
+	properties.Properties().Aws.Config.OverrideConfig = false
 }
 
 func TestAwsConfigWithoutOverrideSuccess(t *testing.T) {

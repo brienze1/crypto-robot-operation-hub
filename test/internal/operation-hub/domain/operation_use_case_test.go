@@ -55,9 +55,9 @@ func (c cryptoWebServiceMock) GetCryptoCurrentQuote(symbol.Symbol) (float64, err
 	return 0, cryptoServiceGetCryptoCurrentQuoteError
 }
 
-func (c clientPersistenceMock) GetClients(model.ClientSearchConfig) ([]model.Client, error) {
+func (c clientPersistenceMock) GetClients(model.ClientSearchConfig) (*[]model.Client, error) {
 	clientPersistenceGetClientsCounter++
-	return clients, clientPersistenceGetClientsError
+	return &clients, clientPersistenceGetClientsError
 }
 
 func (e eventServiceMock) Send(interface{}) error {
