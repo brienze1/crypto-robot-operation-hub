@@ -13,10 +13,14 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
+  dependency-check:
+    uses: ./.github/workflows/dependency_check.yml
+
   coverage:
     needs:
       - test
       - lint
+      - dependency-check
     uses: ./.github/workflows/coverage.yml
 
   deploy-docker:
