@@ -5,6 +5,7 @@ on:
 
 jobs:
   dependency-check:
+    name: Dependency Check
     runs-on: ubuntu-latest
     steps:
       - name: Setup cache
