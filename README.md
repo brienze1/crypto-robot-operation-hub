@@ -370,35 +370,30 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 #### Dependencies
 
-- [aws-lambda](https://www.npmjs.com/package/aws-lambda): Used in Lambda Handler integration
-- [aws-sdk](https://www.npmjs.com/package/aws-sdk): Used in SNS integration (Needs to be replaced for SNS specific
-  dependency)
-- [dynamoose](https://www.npmjs.com/package/dynamoose): Used as ORM for DynamoDB
-- [winston](https://www.npmjs.com/package/winston): Used for logging purposes
-- [uuid](https://www.npmjs.com/package/uuid): Used to generate uuids
+- [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
+- [aws/aws-sdk-go](https://github.com/aws/aws-sdk-go): Used in SNS integration 
+- [google/uuid](https://github.com/google/uuid): Used to generate uuids
+- [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
+
+[//]: # (- [dynamoose]&#40;https://www.npmjs.com/package/dynamoose&#41;: Used as ORM for DynamoDB)
+[//]: # (- [winston]&#40;https://www.npmjs.com/package/winston&#41;: Used for logging purposes)
 
 #### Compiler Dependencies
 
-- [typescript](https://www.npmjs.com/package/typescript): Used run/compile typescript code
-- [eslint](https://www.npmjs.com/package/eslint): Used to enforce coding practices
-- [babel](https://babeljs.io/): Used to transpile code into js on build
-- [dotenv](https://www.npmjs.com/package/dotenv): Used to map .env variables
+- [golangci/golangci-lint](https://github.com/golangci/golangci-lint): Used to enforce coding practices
 
 #### Test Dependencies
 
-- [jest](https://www.npmjs.com/package/jest): Used to run unit tests
-- [@cucumber/cucumber](https://www.npmjs.com/package/@cucumber/cucumber): Used to run integration tests
-- [chai](https://www.npmjs.com/package/chai): Used to perform test assertions with cucumber
-- [sinon](https://www.npmjs.com/package/sinon): Used to create mocks/stubs/spy's
-- [aws-sdk-mock](https://www.npmjs.com/package/aws-sdk-mock): Used to create mocks for AWS integrations
+[//]: # (- [@cucumber/cucumber]&#40;https://www.npmjs.com/package/@cucumber/cucumber&#41;: Used to run integration tests)
+- [stretchr/testify](https://github.com/stretchr/testify): Used to perform test assertions
 
 ### Roadmap
 
 - [] Implement Behaviour tests (BDD)
 - [] Implement Unit tests
 - [] Implement application logic
-- [] Create Dockerfile
-- [] Create Docker compose for local infrastructure
+- [x] Create Dockerfile
+- [x] Create Docker compose for local infrastructure
 - [] Document everything in Readme
 
 <p align="right">(<a href="#top">back to top</a>)</p>
