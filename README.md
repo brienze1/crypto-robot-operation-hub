@@ -389,12 +389,12 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 ### Roadmap
 
-- [] Implement Behaviour tests (BDD)
-- [] Implement Unit tests
-- [] Implement application logic
+- [ ] Implement Behaviour tests (BDD)
+- [ ] Implement Unit tests
+- [ ] Implement application logic
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
-- [] Document everything in Readme
+- [ ] Document everything in Readme
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
