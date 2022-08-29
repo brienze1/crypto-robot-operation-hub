@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
+	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/entity"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/exceptions"
 	"strconv"
@@ -15,11 +16,11 @@ import (
 
 type clientPersistence struct {
 	logger    adapters.LoggerAdapter
-	dynamoDb  *dynamodb.Client
+	dynamoDb  adapters2.DynamoDBAdapter
 	tableName string
 }
 
-func ClientPersistence(logger adapters.LoggerAdapter, dynamoDb *dynamodb.Client, clientTableName string) *clientPersistence {
+func ClientPersistence(logger adapters.LoggerAdapter, dynamoDb adapters2.DynamoDBAdapter, clientTableName string) *clientPersistence {
 	return &clientPersistence{
 		logger:    logger,
 		dynamoDb:  dynamoDb,
@@ -55,7 +56,7 @@ func (c *clientPersistence) GetClients(config model.ClientSearchConfig) (*[]mode
 		},
 	})
 	if err != nil {
-		return nil, c.abort(err, "DynamoDb query error")
+		return nil, c.abort(err, "DynamoDb scan error")
 	}
 
 	err = attributevalue.UnmarshalListOfMaps(result.Items, clientsEntity)
