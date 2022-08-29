@@ -13,7 +13,7 @@ func setup() {
 	properties.Properties().Aws.Config.OverrideConfig = false
 }
 
-func TestAwsConfigWithoutOverrideSuccess(t *testing.T) {
+func TestAwsConfigSuccess(t *testing.T) {
 	setup()
 
 	snsClient := config.SNSClient()

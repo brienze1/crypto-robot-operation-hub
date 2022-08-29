@@ -23,22 +23,13 @@ var (
 	dynamoDbClient *dynamodb.Client
 )
 
-func newSession() *aws.Config {
+func getConfig() *aws.Config {
 	if awsConfig == nil {
 		sessionInit.Do(
 			func() {
 				if properties.Properties().Aws.Config.OverrideConfig {
-					endpointResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-						return aws.Endpoint{
-							PartitionID:       "aws",
-							URL:               properties.Properties().Aws.Config.URL,
-							SigningRegion:     properties.Properties().Aws.Config.Region,
-							HostnameImmutable: true,
-						}, nil
-					})
-
 					newAwsConfig, err := config.LoadDefaultConfig(context.TODO(),
-						config.WithEndpointResolverWithOptions(endpointResolver),
+						config.WithEndpointResolverWithOptions(NewEndpointResolver()),
 						config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 							properties.Properties().Aws.Config.AccessKey,
 							properties.Properties().Aws.Config.AccessSecret,
@@ -60,10 +51,21 @@ func newSession() *aws.Config {
 	return awsConfig
 }
 
+func NewEndpointResolver() aws.EndpointResolverWithOptionsFunc {
+	return func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		return aws.Endpoint{
+			PartitionID:       "aws",
+			URL:               properties.Properties().Aws.Config.URL,
+			SigningRegion:     properties.Properties().Aws.Config.Region,
+			HostnameImmutable: true,
+		}, nil
+	}
+}
+
 func SNSClient() *sns.Client {
 	if awsConfig == nil {
 		snsInit.Do(func() {
-			cfg := newSession()
+			cfg := getConfig()
 
 			snsClient = sns.NewFromConfig(*cfg)
 		})
@@ -75,7 +77,7 @@ func SNSClient() *sns.Client {
 func DynamoDBClient() *dynamodb.Client {
 	if awsConfig == nil {
 		dynamoDBInit.Do(func() {
-			cfg := newSession()
+			cfg := getConfig()
 
 			dynamoDbClient = dynamodb.NewFromConfig(*cfg)
 		})
