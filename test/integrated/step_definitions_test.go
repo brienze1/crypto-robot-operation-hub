@@ -1,24 +1,36 @@
 package integrated
 
-import (
-	"errors"
-	"github.com/cucumber/godog"
-)
-
-func iEat(arg1 int) error {
-	return godog.ErrPending
-}
-
-func thereAreGodogs(arg1 int) error {
-	return errors.New("test")
-}
-
-func thereShouldBeRemaining(arg1 int) error {
-	return godog.ErrPending
-}
+import "github.com/cucumber/godog"
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	ctx.Step(`^I eat (\d+)$`, iEat)
-	ctx.Step(`^there are (\d+) godogs$`, thereAreGodogs)
-	ctx.Step(`^there should be (\d+) remaining$`, thereShouldBeRemaining)
+	ctx.Step(`^dynamoDb is "([^"]*)"$`, dynamoDbIs)
+	ctx.Step(`^there is (\d+) client available in dynamodb$`, thereIsClientAvailableInDynamodb)
+	ctx.Step(`^binance api is "([^"]*)"$`, binanceApiIs)
+	ctx.Step(`^I receive message with summary equals "([^"]*)"$`, iReceiveMessageWithSummaryEquals)
+	ctx.Step(`^there should be (\d+) message sent via sns$`, thereShouldBeMessageSentViaSns)
+	ctx.Step(`^process should exit with (\d+)$`, processShouldExitWith)
+}
+
+func dynamoDbIs(status string) error {
+	return godog.ErrPending
+}
+
+func thereIsClientAvailableInDynamodb(numberOfClients int) error {
+	return godog.ErrPending
+}
+
+func binanceApiIs(status string) error {
+	return godog.ErrPending
+}
+
+func iReceiveMessageWithSummaryEquals(summary string) error {
+	return godog.ErrPending
+}
+
+func thereShouldBeMessageSentViaSns(arg1 int) error {
+	return godog.ErrPending
+}
+
+func processShouldExitWith(status int) error {
+	return godog.ErrPending
 }
