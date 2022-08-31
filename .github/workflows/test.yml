@@ -36,3 +36,6 @@ jobs:
 
       - name: Run unit test
         run: go test -v ./...
+
+      - name: Run integration test
+        run: cd test/integrated;godog run;cd ../..
