@@ -5,22 +5,19 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/symbol"
+	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/dto"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/exceptions"
 	"net/http"
 	"net/url"
 )
 
-type client interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
 type binanceWebService struct {
 	logger adapters.LoggerAdapter
-	client client
+	client adapters2.HTTPClientAdapter
 }
 
-func BinanceWebService(logger adapters.LoggerAdapter, client client) *binanceWebService {
+func BinanceWebService(logger adapters.LoggerAdapter, client adapters2.HTTPClientAdapter) *binanceWebService {
 	return &binanceWebService{
 		logger: logger,
 		client: client,

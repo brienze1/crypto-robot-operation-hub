@@ -21,7 +21,7 @@ var injector *dependencyInjector
 
 type dependencyInjector struct {
 	Logger            adapters.LoggerAdapter
-	HTTPClient        *http.Client
+	HTTPClient        adapters2.HTTPClientAdapter
 	CryptoWebService  adapters.CryptoWebServiceAdapter
 	DynamoDb          adapters2.DynamoDBAdapter
 	ClientPersistence adapters.ClientPersistenceAdapter
