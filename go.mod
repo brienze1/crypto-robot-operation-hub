@@ -37,11 +37,13 @@ require (
 	github.com/hashicorp/go-memdb v1.3.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/gogo/protobuf v1.2.1 => github.com/gogo/protobuf v1.3.2
+replace (
+	github.com/gogo/protobuf v1.2.1 => github.com/gogo/protobuf v1.3.2
+	github.com/hashicorp/consul/api v1.1.0 => github.com/hashicorp/consul/api v1.14.0
+)
