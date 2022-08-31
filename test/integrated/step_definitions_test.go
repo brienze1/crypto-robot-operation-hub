@@ -22,7 +22,6 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"time"
 )
 
@@ -33,6 +32,9 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^sns service is "([^"]*)"$`, snsServiceIs)
 	ctx.Step(`^I receive message with summary equals "([^"]*)"$`, iReceiveMessageWithSummaryEquals)
 	ctx.Step(`^there should be (\d+) messages sent via sns$`, thereShouldBeMessagesSentViaSns)
+	ctx.Step(`^sns messages payload should have all client_id\'s got from clients table$`, snsMessagesPayloadShouldHaveAllClientIdsGotFromClientsTable)
+	ctx.Step(`^sns messages payload symbol should be equal "([^"]*)"$`, snsMessagesPayloadSymbolShouldBeEqual)
+	ctx.Step(`^sns messages payload operation should be equal "([^"]*)"$`, snsMessagesPayloadOperationShouldBeEqual)
 	ctx.Step(`^process should exit with (\d+)$`, processShouldExitWith)
 }
 
@@ -53,6 +55,7 @@ var (
 	dynamoDBClients         []model.Client
 	snsClientError          error
 	snsClientPublishCounter = 0
+	snsClientPublishInputs  []model.OperationRequest
 	handlerError            error
 )
 
@@ -77,8 +80,11 @@ func (d *dynamoDBMock) Scan(_ context.Context, _ *dynamodb.ScanInput, _ ...func(
 	}, dynamoDBError
 }
 
-func (s *snsClientMock) Publish(_ context.Context, _ *sns.PublishInput, _ ...func(*sns.Options)) (*sns.PublishOutput, error) {
+func (s *snsClientMock) Publish(_ context.Context, input *sns.PublishInput, _ ...func(*sns.Options)) (*sns.PublishOutput, error) {
 	snsClientPublishCounter++
+	request := model.OperationRequest{}
+	_ = json.Unmarshal([]byte(*input.Message), &request)
+	snsClientPublishInputs = append(snsClientPublishInputs, request)
 	return nil, snsClientError
 }
 
@@ -127,6 +133,7 @@ func binanceApiIs(status string) error {
 
 func snsServiceIs(status string) error {
 	snsClientPublishCounter = 0
+	snsClientPublishInputs = []model.OperationRequest{}
 	config.DependencyInjector().SNSClient = &snsClientMock{}
 
 	if status != "up" {
@@ -149,13 +156,57 @@ func iReceiveMessageWithSummaryEquals(value string) error {
 }
 
 func thereShouldBeMessagesSentViaSns(numberOfMessages int) error {
-	if snsClientPublishCounter != numberOfMessages {
-		return errors.New("sns should have sent " +
-			strconv.Itoa(numberOfMessages) +
-			", but sent " +
-			strconv.Itoa(snsClientPublishCounter) +
-			"instead")
+	err := assertEqual(snsClientPublishCounter, numberOfMessages)
+	if err != nil {
+		return err
 	}
+
+	err = assertEqual(len(snsClientPublishInputs), numberOfMessages)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func snsMessagesPayloadShouldHaveAllClientIdsGotFromClientsTable() error {
+	for _, client := range dynamoDBClients {
+		found := false
+
+		for _, request := range snsClientPublishInputs {
+			err := assertEqual(request.ClientId, client.Id)
+			if err == nil {
+				found = true
+			}
+		}
+
+		if !found {
+			return errors.New("client id should have been sent to sns")
+		}
+	}
+
+	return nil
+}
+
+func snsMessagesPayloadSymbolShouldBeEqual(value string) error {
+	for _, request := range snsClientPublishInputs {
+		err := assertEqual(request.Symbol, value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func snsMessagesPayloadOperationShouldBeEqual(value string) error {
+	for _, request := range snsClientPublishInputs {
+		err := assertEqual(request.Operation, value)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -166,6 +217,15 @@ func processShouldExitWith(status int) error {
 		return errors.New("should have exited with status 1 but instead finished with 0")
 	}
 	return nil
+}
+
+func assertEqual(val1, val2 interface{}) error {
+	if val1 == val2 {
+		return nil
+	}
+	val1String, _ := json.Marshal(val1)
+	val2String, _ := json.Marshal(val2)
+	return errors.New(string(val1String) + " should be equal to " + string(val2String))
 }
 
 func createSQSEvent(summary summary.Summary) *events.SQSEvent {

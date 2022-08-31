@@ -243,7 +243,6 @@ Example of how the line should look like:
     "operation": "BUY",
     "symbol": "BTC",
     "start_time": "2007-12-03 10:15:30",
-    "available_amount": 1233.32
 }
 ```
 
@@ -398,7 +397,6 @@ using GitHub actions. Local environment is created using localstack for testing 
 - [x] Implement Behaviour tests (BDD)
 - [x] Implement Unit tests
 - [x] Implement application logic
-- [ ] Fix payload sent to SNS to include operation variables
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
 - [x] Document everything in Readme

@@ -23,6 +23,11 @@ var values = map[Summary]int{
 func (s Summary) Value() int {
 	return values[s]
 }
+
+func (s Summary) Name() string {
+	return string(s)
+}
+
 func (s Summary) Summary(summary string) Summary {
 	switch summary {
 	case string(StrongBuy):
@@ -46,4 +51,8 @@ func (s Summary) OperationType() operation_type.OperationType {
 		return operation_type.Buy
 	}
 	return operation_type.None
+}
+
+func (s Summary) OperationTypeString() string {
+	return string(s.OperationType())
 }

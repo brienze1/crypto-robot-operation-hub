@@ -10,6 +10,9 @@ Feature: Trigger operations
     And sns service is "up"
     When I receive message with summary equals "STRONG_BUY"
     Then there should be 1 messages sent via sns
+    And sns messages payload should have all client_id's got from clients table
+    And sns messages payload symbol should be equal "STRONG_BUY"
+    And sns messages payload operation should be equal "BUY"
     And process should exit with 0
 
   Scenario: Trigger operation for six clients
@@ -19,4 +22,7 @@ Feature: Trigger operations
     And sns service is "up"
     When I receive message with summary equals "STRONG_BUY"
     Then there should be 6 messages sent via sns
+    And sns messages payload should have all client_id's got from clients table
+    And sns messages payload symbol should be equal "STRONG_BUY"
+    And sns messages payload operation should be equal "BUY"
     And process should exit with 0

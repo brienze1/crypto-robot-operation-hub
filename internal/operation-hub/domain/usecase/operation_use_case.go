@@ -63,7 +63,7 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 	}
 
 	for _, client := range *clients {
-		if err := o.eventService.Send(client); err != nil {
+		if err := o.eventService.Send(model.NewOperationRequest(client, operationSummary)); err != nil {
 			return o.abort(err, "Error while trying to send event")
 		}
 	}
