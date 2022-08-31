@@ -28,7 +28,7 @@ import (
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^dynamoDb is "([^"]*)"$`, dynamoDbIs)
-	ctx.Step(`^there is (\d+) client available in dynamodb$`, thereIsClientAvailableInDynamodb)
+	ctx.Step(`^there are (\d+) clients available in dynamodb$`, thereAreClientsAvailableInDynamodb)
 	ctx.Step(`^binance api is "([^"]*)"$`, binanceApiIs)
 	ctx.Step(`^sns service is "([^"]*)"$`, snsServiceIs)
 	ctx.Step(`^I receive message with summary equals "([^"]*)"$`, iReceiveMessageWithSummaryEquals)
@@ -37,6 +37,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 }
 
 type (
+	loggerMock struct {
+	}
 	dynamoDBMock struct {
 	}
 	snsClientMock struct {
@@ -53,6 +55,15 @@ var (
 	snsClientPublishCounter = 0
 	handlerError            error
 )
+
+func (l loggerMock) Info(string, ...interface{}) {
+}
+
+func (l loggerMock) Error(error, string, ...interface{}) {
+}
+
+func (l loggerMock) SetCorrelationID(string) {
+}
 
 func (d *dynamoDBMock) Scan(_ context.Context, _ *dynamodb.ScanInput, _ ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
 	var items []map[string]types.AttributeValue
@@ -85,7 +96,8 @@ func dynamoDbIs(status string) error {
 	return nil
 }
 
-func thereIsClientAvailableInDynamodb(numberOfClients int) error {
+func thereAreClientsAvailableInDynamodb(numberOfClients int) error {
+	dynamoDBClients = []model.Client{}
 	for i := 1; i <= numberOfClients; i++ {
 		dynamoDBClients = append(dynamoDBClients, model.Client{
 			Id: uuid.NewString(),
@@ -114,6 +126,7 @@ func binanceApiIs(status string) error {
 }
 
 func snsServiceIs(status string) error {
+	snsClientPublishCounter = 0
 	config.DependencyInjector().SNSClient = &snsClientMock{}
 
 	if status != "up" {
@@ -124,6 +137,8 @@ func snsServiceIs(status string) error {
 }
 
 func iReceiveMessageWithSummaryEquals(value string) error {
+	config.DependencyInjector().Logger = &loggerMock{}
+
 	event := createSQSEvent(summary.Summary(value))
 
 	ctx := ctx{}
