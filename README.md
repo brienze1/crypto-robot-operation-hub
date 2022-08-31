@@ -327,12 +327,7 @@ Here are some rules that need to be implemented in this application.
 
 Implemented:
 
-- None
-
-Not implemented:
-
 [//]: # (- Client must have the coin symbol selected inside `config.symbols` variable to operate it)
-
 - Client must be active
 - Client must not be locked
 - Current date must be greater than locked_until value
@@ -340,27 +335,41 @@ Not implemented:
 - Client must have enough crypto to sell minimum allowed amount
 - Buy operations should be triggered when the summary received is equal or less restricting than the `config.buy_on`
   value.
-    - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
-      be allowed, and the opposite should be denied.
+  - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
+  be allowed, and the opposite should be denied.
 - Sell operations should be triggered when the summary received is equal or less restricting than the `config.sell_on`
   value.
-    - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
-      be allowed, and the opposite should be denied.
+  - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
+  be allowed, and the opposite should be denied.
 
-- Operations should not be triggered after monthly sell cap has been reached
-    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly
-      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,
-      because when the operation is completed and the crypto is sold the expectation is that the value should be equal
-      or close to the bought amount (witch mas of 2500) totalizing 25.000,00 monthly sell value.
-    - If monthly cap is 0 it can be ignored.
-- Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to
-  the `config.day_stop_loss` value.
-    - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values
-      should be updated to start a new day.
-- Operations should not be triggered if `monthly_summary.proffit` has a negative value of more than or equal to
-  the `config.month_stop_loss` value.
-    - `monthly_summary.month` value should be checked to see if current month has changed, in this case, the values
-      should be updated to start a new month.
+[//]: # (TODO this should be moved to validation step)
+[//]: # (- Operations should not be triggered after monthly sell cap has been reached)
+
+[//]: # (    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly)
+
+[//]: # (      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,)
+
+[//]: # (      because when the operation is completed and the crypto is sold the expectation is that the value should be equal)
+
+[//]: # (      or close to the bought amount &#40;witch mas of 2500&#41; totalizing 25.000,00 monthly sell value.)
+
+[//]: # (    - If monthly cap is 0 it can be ignored.)
+
+[//]: # (- Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to)
+
+[//]: # (  the `config.day_stop_loss` value.)
+
+[//]: # (    - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values)
+
+[//]: # (      should be updated to start a new day.)
+
+[//]: # (- Operations should not be triggered if `monthly_summary.proffit` has a negative value of more than or equal to)
+
+[//]: # (  the `config.month_stop_loss` value.)
+
+[//]: # (    - `monthly_summary.month` value should be checked to see if current month has changed, in this case, the values)
+
+[//]: # (      should be updated to start a new month.)
 
 ### Built With
 
@@ -371,12 +380,9 @@ using GitHub actions. Local environment is created using localstack for testing 
 #### Dependencies
 
 - [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
-- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS integration 
+- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS and DynamoDB integration 
 - [google/uuid](https://github.com/google/uuid): Used to generate uuids
 - [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
-
-[//]: # (- [dynamoose]&#40;https://www.npmjs.com/package/dynamoose&#41;: Used as ORM for DynamoDB)
-[//]: # (- [winston]&#40;https://www.npmjs.com/package/winston&#41;: Used for logging purposes)
 
 #### Compiler Dependencies
 
@@ -384,17 +390,18 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 #### Test Dependencies
 
-[//]: # (- [@cucumber/cucumber]&#40;https://www.npmjs.com/package/@cucumber/cucumber&#41;: Used to run integration tests)
+- [cucumber/godog](https://github.com/cucumber/godog): Used to run integration tests
 - [stretchr/testify](https://github.com/stretchr/testify): Used to perform test assertions
 
 ### Roadmap
 
-- [ ] Implement Behaviour tests (BDD)
-- [ ] Implement Unit tests
-- [ ] Implement application logic
+- [x] Implement Behaviour tests (BDD)
+- [x] Implement Unit tests
+- [x] Implement application logic
+- [ ] Fix payload sent to SNS to include operation variables
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
-- [ ] Document everything in Readme
+- [x] Document everything in Readme
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -466,10 +473,10 @@ Obs: Make sure Docker is running before.
 
 #### Manual Input
 
-- Start the compiled application:
+- Start the compiled application locally:
     - Windows/macOS/Linux/WSL
       ```bash
-      go run cmd/operation-hub/main.go
+      go run cmd/local/main_local.go
       ```
 - To stop the application just press Ctrl+C
 
@@ -491,11 +498,23 @@ Obs: Make sure Docker is running before.
 
 ### Testing
 
-- To run the tests just type the command bellow in terminal:
+- To run the unit tests just type the command bellow in terminal:
     - Windows/macOS/Linux/WSL
       ```bash
       go test ./...
       ```
+      
+- To run the integration tests:
+  - First godog needs to be installed:
+      - Windows/macOS/Linux/WSL
+        ```bash
+        go install github.com/cucumber/godog/cmd/godog@latest
+        ```
+  - Then run the tests 
+      - Windows/macOS/Linux/WSL
+        ```bash
+        cd test/integrated;godog run;cd ../..
+        ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -506,7 +525,7 @@ Hello! :)
 My name is Luis Brienze, and I'm a Software Engineer.
 
 I focus primarily on software development, but I'm also good at system architecture, mentoring other developers,
-etc... I've been in the IT industry for 4+ years, during this time I worked for companies like Itau, Dock, Imagine
+etc... I've been in the IT industry for 4+ years, during this time I worked for companies like Itaú, Dock, Imagine
 Learning and
 EPAM.
 
