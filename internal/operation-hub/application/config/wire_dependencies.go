@@ -53,6 +53,10 @@ func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 	if d.CryptoWebService == nil {
 		d.CryptoWebService = webservice.BinanceWebService(d.Logger, d.HTTPClient)
 	}
+	if d.DynamoDb == nil {
+		d.DynamoDb = DynamoDBClient()
+	}
+
 	if d.ClientPersistence == nil {
 		d.ClientPersistence = persistence.ClientPersistence(
 			d.Logger,
@@ -64,7 +68,7 @@ func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 		d.SNSClient = SNSClient()
 	}
 	if d.EventService == nil {
-		d.EventService = eventservice.SNSEventService(d.Logger, snsClient)
+		d.EventService = eventservice.SNSEventService(d.Logger, d.SNSClient)
 	}
 	if d.OperationUseCase == nil {
 		d.OperationUseCase = usecase.OperationUseCase(d.Logger, d.CryptoWebService, d.ClientPersistence, d.EventService)

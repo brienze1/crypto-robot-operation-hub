@@ -6,11 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
-	operation_hub "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
 	dto2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/dto"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/summary"
@@ -70,6 +71,12 @@ func (s *snsClientMock) Publish(_ context.Context, _ *sns.PublishInput, _ ...fun
 	return nil, snsClientError
 }
 
+func (ctx ctx) Value(any) any {
+	return &lambdacontext.LambdaContext{
+		AwsRequestID: uuid.NewString(),
+	}
+}
+
 func dynamoDbIs(status string) error {
 	config.DependencyInjector().DynamoDb = &dynamoDBMock{}
 	if status != "up" {
@@ -79,7 +86,7 @@ func dynamoDbIs(status string) error {
 }
 
 func thereIsClientAvailableInDynamodb(numberOfClients int) error {
-	for i := 0; i <= numberOfClients; i++ {
+	for i := 1; i <= numberOfClients; i++ {
 		dynamoDBClients = append(dynamoDBClients, model.Client{
 			Id: uuid.NewString(),
 		})

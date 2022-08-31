@@ -11,8 +11,9 @@ import (
 )
 
 type snsEventService struct {
-	logger adapters2.LoggerAdapter
-	sns    adapters.SNSAdapter
+	logger  adapters2.LoggerAdapter
+	sns     adapters.SNSAdapter
+	context context.Context
 }
 
 func SNSEventService(logger adapters2.LoggerAdapter, sns adapters.SNSAdapter) *snsEventService {

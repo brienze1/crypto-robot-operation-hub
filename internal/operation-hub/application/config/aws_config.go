@@ -66,7 +66,6 @@ func SNSClient() *sns.Client {
 	if awsConfig == nil {
 		snsInit.Do(func() {
 			cfg := getConfig()
-
 			snsClient = sns.NewFromConfig(*cfg)
 		})
 	}
