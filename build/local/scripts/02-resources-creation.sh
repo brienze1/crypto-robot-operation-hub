@@ -50,3 +50,36 @@ AttributeName=sell_on,AttributeType=N \
 ]" \
 --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
 --endpoint-url=http://localhost:4566
+
+
+
+echo "-----------------Script-03----------------- [operation-hub]"
+
+echo "########### Make S3 bucket for lambdas ###########"
+aws s3 mb s3://lambda-functions --endpoint-url http://localhost:4566
+
+echo "########### Create Admin IAM Role ###########"
+aws iam create-role --role-name admin-role --path / --assume-role-policy-document file:./admin-policy.json --endpoint-url http://localhost:4566
+
+echo "########### Copy the lambda function to the S3 bucket ###########"
+aws s3 cp /lambda-files/crypto-robot-operation-hub.zip s3://lambda-functions --endpoint-url http://localhost:4566
+
+echo "########### Create the lambda operationHubLambda ###########"
+aws lambda create-function \
+  --endpoint-url http://localhost:4566 \
+  --function-name operationHubLambda \
+  --role arn:aws:iam::000000000000:role/admin-role \
+  --code S3Bucket=lambda-functions,S3Key=crypto-robot-operation-hub.zip \
+  --handler ./crypto-robot-operation-hub/operation-hub \
+  --runtime go1.x \
+  --description "SQS Lambda handler for test sqs." \
+  --timeout 60 \
+  --memory-size 128
+
+echo "########### Map the cryptoOperationHubQueue to the operationHubLambda lambda function ###########"
+aws lambda create-event-source-mapping \
+  --function-name operationHubLambda \
+  --batch-size 1 \
+  --event-source-arn "arn:aws:sqs:sa-east-1:000000000000:cryptoOperationHubQueue" \
+  --endpoint-url http://localhost:4566
+
