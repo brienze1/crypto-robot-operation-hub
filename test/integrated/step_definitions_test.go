@@ -22,8 +22,26 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 	"time"
 )
+
+func TestFeatures(t *testing.T) {
+	suite := godog.TestSuite{
+		ScenarioInitializer: func(s *godog.ScenarioContext) {
+			InitializeScenario(s)
+		},
+		Options: &godog.Options{
+			Format:   "pretty",
+			Paths:    []string{"features"},
+			TestingT: t, // Testing instance that will run subtests.
+		},
+	}
+
+	if suite.Run() != 0 {
+		t.Fatal("non-zero status returned, failed to run feature tests")
+	}
+}
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^dynamoDb is "([^"]*)"$`, dynamoDbIs)
@@ -68,7 +86,7 @@ func (l loggerMock) Error(error, string, ...interface{}) {
 func (l loggerMock) SetCorrelationID(string) {
 }
 
-func (d *dynamoDBMock) Scan(_ context.Context, _ *dynamodb.ScanInput, _ ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+func (d *dynamoDBMock) Scan(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
 	var items []map[string]types.AttributeValue
 	for _, client := range dynamoDBClients {
 		item, _ := attributevalue.MarshalMap(client)

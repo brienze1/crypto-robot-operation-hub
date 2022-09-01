@@ -35,10 +35,7 @@ jobs:
         run: go mod download
 
       - name: Run unit test
-        run: go test -v ./...
-
-      - name: Install godog
-        run: go install github.com/cucumber/godog/cmd/godog@latest
+        run: go test -v ./test/unit/...
 
       - name: Run integration test
-        run: cd test/integrated;godog run;cd ../..
+        run: go test -v ./test/integrated/...
