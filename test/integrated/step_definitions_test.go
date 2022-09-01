@@ -91,15 +91,15 @@ func (d *dynamoDBMock) Scan(_ context.Context, input *dynamodb.ScanInput, _ ...f
 	_ = attributevalue.UnmarshalMap(input.ExpressionAttributeValues, &conditions)
 
 	var items []map[string]types.AttributeValue
-	for _, client := range dynamoDBClients {
-		if client.Active == conditions[":active"] &&
-			client.Locked == conditions[":locked"] &&
-			client.LockedUntil == conditions[":active"] {
-
-		}
-		item, _ := attributevalue.MarshalMap(client)
-		items = append(items, item)
-	}
+	//for _, client := range dynamoDBClients {
+	//	if client.Active == conditions[":active"] &&
+	//		client.Locked == conditions[":locked"] &&
+	//		client.LockedUntil == conditions[":active"] {
+	//
+	//	}
+	//	item, _ := attributevalue.MarshalMap(client)
+	//	items = append(items, item)
+	//}
 
 	returnClients := dynamoDBClients
 
