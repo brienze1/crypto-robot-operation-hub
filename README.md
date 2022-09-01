@@ -400,6 +400,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
 - [x] Document everything in Readme
+- [ ] Change to use Postgres instead of DynamoDB
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

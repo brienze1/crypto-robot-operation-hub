@@ -1,12 +1,13 @@
 package config
 
 import (
+	logg "github.com/brienze1/crypto-robot-operation-hub/pkg/log"
 	"github.com/joho/godotenv"
 	"os"
 	"regexp"
 )
 
-const projectDirName = "crypto-robot-operation-hub"
+const alternateParentFolderName = "crypto-robot-operation-hub"
 const configDirPath = "/config/"
 
 func LoadEnv() {
@@ -20,14 +21,21 @@ func LoadEnv() {
 }
 
 func load(file string) {
-	projectName := regexp.MustCompile(`^(.*` + projectDirName + `)`)
-	currentWorkDirectory, _ := os.Getwd()
-	rootPath := string(projectName.Find([]byte(currentWorkDirectory)))
-
-	err := godotenv.Load(rootPath + configDirPath + file)
+	err := godotenv.Load("." + configDirPath + file)
 	if err != nil {
-		panic("Error loading file: " + file)
+		rootPath := getRootPath(alternateParentFolderName)
+		err := godotenv.Load(rootPath + configDirPath + file)
+		if err != nil {
+			logg.Logger().Error(err, "failed loading env file "+file)
+			panic("Error loading file: " + file)
+		}
 	}
+}
+
+func getRootPath(dirName string) string {
+	projectName := regexp.MustCompile(`^(.*` + dirName + `)`)
+	currentWorkDirectory, _ := os.Getwd()
+	return string(projectName.Find([]byte(currentWorkDirectory)))
 }
 
 type env string

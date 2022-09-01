@@ -86,9 +86,24 @@ func (l loggerMock) Error(error, string, ...interface{}) {
 func (l loggerMock) SetCorrelationID(string) {
 }
 
-func (d *dynamoDBMock) Scan(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+func (d *dynamoDBMock) Scan(_ context.Context, input *dynamodb.ScanInput, _ ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+	conditions := map[string]interface{}{}
+	_ = attributevalue.UnmarshalMap(input.ExpressionAttributeValues, &conditions)
+
 	var items []map[string]types.AttributeValue
 	for _, client := range dynamoDBClients {
+		if client.Active == conditions[":active"] &&
+			client.Locked == conditions[":locked"] &&
+			client.LockedUntil == conditions[":active"] {
+
+		}
+		item, _ := attributevalue.MarshalMap(client)
+		items = append(items, item)
+	}
+
+	returnClients := dynamoDBClients
+
+	for _, client := range returnClients {
 		item, _ := attributevalue.MarshalMap(client)
 		items = append(items, item)
 	}
@@ -265,14 +280,8 @@ func createSQSEvent(summary summary.Summary) *events.SQSEvent {
 	}
 }
 
-func createSNSEvent(message string) events.SNSEvent {
-	return events.SNSEvent{
-		Records: []events.SNSEventRecord{
-			{
-				SNS: events.SNSEntity{
-					Message: message,
-				},
-			},
-		},
+func createSNSEvent(message string) events.SNSEntity {
+	return events.SNSEntity{
+		Message: message,
 	}
 }
