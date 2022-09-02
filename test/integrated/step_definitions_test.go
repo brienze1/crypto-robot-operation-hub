@@ -2,14 +2,13 @@ package integrated
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
@@ -34,7 +33,7 @@ func TestFeatures(t *testing.T) {
 		Options: &godog.Options{
 			Format:   "pretty",
 			Paths:    []string{"features"},
-			TestingT: t, // Testing instance that will run subtests.
+			TestingT: t,
 		},
 	}
 
@@ -44,11 +43,13 @@ func TestFeatures(t *testing.T) {
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	ctx.Step(`^dynamoDb is "([^"]*)"$`, dynamoDbIs)
-	ctx.Step(`^there are (\d+) clients available in dynamodb$`, thereAreClientsAvailableInDynamodb)
+	ctx.Step(`^test env variables were loaded$`, testEnvVariablesWereLoaded)
+	ctx.Step(`^postgresSQL is "([^"]*)"$`, postgresSQLIs)
 	ctx.Step(`^binance api is "([^"]*)"$`, binanceApiIs)
 	ctx.Step(`^sns service is "([^"]*)"$`, snsServiceIs)
 	ctx.Step(`^I receive message with summary equals "([^"]*)"$`, iReceiveMessageWithSummaryEquals)
+	ctx.Step(`^there are (\d+) clients available in DB`, thereAreClientsAvailableInDB)
+	ctx.Step(`^handler is triggered$`, handlerIsTriggered)
 	ctx.Step(`^there should be (\d+) messages sent via sns$`, thereShouldBeMessagesSentViaSns)
 	ctx.Step(`^sns messages payload should have all client_id\'s got from clients table$`, snsMessagesPayloadShouldHaveAllClientIdsGotFromClientsTable)
 	ctx.Step(`^sns messages payload symbol should be equal "([^"]*)"$`, snsMessagesPayloadSymbolShouldBeEqual)
@@ -59,18 +60,20 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 type (
 	loggerMock struct {
 	}
-	dynamoDBMock struct {
+	postgresSQLMock struct {
+		dbMock sqlmock.Sqlmock
+		db     *sql.DB
 	}
 	snsClientMock struct {
 	}
-	ctx struct {
+	contextMock struct {
 		context.Context
 	}
 )
 
 var (
-	dynamoDBError           error
-	dynamoDBClients         []model.Client
+	postgresSQL             = &postgresSQLMock{}
+	persistedClients        []model.Client
 	snsClientError          error
 	snsClientPublishCounter = 0
 	snsClientPublishInputs  []model.OperationRequest
@@ -86,31 +89,8 @@ func (l loggerMock) Error(error, string, ...interface{}) {
 func (l loggerMock) SetCorrelationID(string) {
 }
 
-func (d *dynamoDBMock) Scan(_ context.Context, input *dynamodb.ScanInput, _ ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
-	conditions := map[string]interface{}{}
-	_ = attributevalue.UnmarshalMap(input.ExpressionAttributeValues, &conditions)
-
-	var items []map[string]types.AttributeValue
-	//for _, client := range dynamoDBClients {
-	//	if client.Active == conditions[":active"] &&
-	//		client.Locked == conditions[":locked"] &&
-	//		client.LockedUntil == conditions[":active"] {
-	//
-	//	}
-	//	item, _ := attributevalue.MarshalMap(client)
-	//	items = append(items, item)
-	//}
-
-	returnClients := dynamoDBClients
-
-	for _, client := range returnClients {
-		item, _ := attributevalue.MarshalMap(client)
-		items = append(items, item)
-	}
-
-	return &dynamodb.ScanOutput{
-		Items: items,
-	}, dynamoDBError
+func (p *postgresSQLMock) OpenConnection() (*sql.DB, error) {
+	return p.db, nil
 }
 
 func (s *snsClientMock) Publish(_ context.Context, input *sns.PublishInput, _ ...func(*sns.Options)) (*sns.PublishOutput, error) {
@@ -121,27 +101,37 @@ func (s *snsClientMock) Publish(_ context.Context, input *sns.PublishInput, _ ..
 	return nil, snsClientError
 }
 
-func (ctx ctx) Value(any) any {
+func (ctx contextMock) Value(any) any {
 	return &lambdacontext.LambdaContext{
 		AwsRequestID: uuid.NewString(),
 	}
 }
 
-func dynamoDbIs(status string) error {
-	config.DependencyInjector().DynamoDb = &dynamoDBMock{}
-	if status != "up" {
-		dynamoDBError = errors.New("dynamoDB not up")
-	}
-	return nil
+var (
+	expectedPrice float64
+	ctx           contextMock
+	event         *events.SQSEvent
+)
+
+func testEnvVariablesWereLoaded() {
+	config.LoadTestEnv()
 }
 
-func thereAreClientsAvailableInDynamodb(numberOfClients int) error {
-	dynamoDBClients = []model.Client{}
-	for i := 1; i <= numberOfClients; i++ {
-		dynamoDBClients = append(dynamoDBClients, model.Client{
-			Id: uuid.NewString(),
-		})
+func postgresSQLIs(status string) error {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		return err
 	}
+
+	postgresSQL.dbMock = mock
+	postgresSQL.db = db
+
+	config.DependencyInjector().PostgresSQLClient = postgresSQL
+
+	if status != "up" {
+		postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnError(errors.New("dynamoDB not up"))
+	}
+
 	return nil
 }
 
@@ -151,7 +141,7 @@ func binanceApiIs(status string) error {
 			http.Error(w, "error test", 500)
 		}
 
-		expectedPrice := 21537.81000000
+		expectedPrice = 21537.81000000
 		response, _ := json.Marshal(dto.Ticker{
 			Symbol: string(symbol.Bitcoin),
 			Price:  fmt.Sprintf("%f", expectedPrice),
@@ -177,11 +167,32 @@ func snsServiceIs(status string) error {
 }
 
 func iReceiveMessageWithSummaryEquals(value string) error {
+	event = createSQSEvent(summary.Summary(value))
+
+	ctx = contextMock{}
+
+	return nil
+}
+
+func thereAreClientsAvailableInDB(numberOfClients int) error {
+	persistedClients = []model.Client{}
+	rows := sqlmock.NewRows([]string{"id"})
+	for i := 1; i <= numberOfClients; i++ {
+		client := model.Client{
+			Id: uuid.NewString(),
+		}
+		persistedClients = append(persistedClients, client)
+		rows.AddRow(client.Id)
+	}
+
+	postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnRows(rows)
+
+	return nil
+}
+
+func handlerIsTriggered() error {
+	config.LoadTestEnv()
 	config.DependencyInjector().Logger = &loggerMock{}
-
-	event := createSQSEvent(summary.Summary(value))
-
-	ctx := ctx{}
 
 	handlerError = operation_hub.Main().Handle(ctx, *event)
 
@@ -203,7 +214,7 @@ func thereShouldBeMessagesSentViaSns(numberOfMessages int) error {
 }
 
 func snsMessagesPayloadShouldHaveAllClientIdsGotFromClientsTable() error {
-	for _, client := range dynamoDBClients {
+	for _, client := range persistedClients {
 		found := false
 
 		for _, request := range snsClientPublishInputs {

@@ -3,5 +3,6 @@ package symbol
 type Symbol string
 
 const (
-	Bitcoin Symbol = "BTCBUSD"
+	Bitcoin    Symbol = "BTC"
+	BitcoinBRL Symbol = "BTCBRL"
 )

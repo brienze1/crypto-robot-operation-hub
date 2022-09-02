@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	adapters3 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/handler"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
@@ -23,7 +22,7 @@ type dependencyInjector struct {
 	Logger            adapters.LoggerAdapter
 	HTTPClient        adapters2.HTTPClientAdapter
 	CryptoWebService  adapters.CryptoWebServiceAdapter
-	DynamoDb          adapters2.DynamoDBAdapter
+	PostgresSQLClient adapters2.PostgresSQLAdapter
 	ClientPersistence adapters.ClientPersistenceAdapter
 	SNSClient         adapters2.SNSAdapter
 	EventService      adapters.EventServiceAdapter
@@ -53,15 +52,14 @@ func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 	if d.CryptoWebService == nil {
 		d.CryptoWebService = webservice.BinanceWebService(d.Logger, d.HTTPClient)
 	}
-	if d.DynamoDb == nil {
-		d.DynamoDb = DynamoDBClient()
+	if d.PostgresSQLClient == nil {
+		d.PostgresSQLClient = PostgresSQLClient(d.Logger)
 	}
 
 	if d.ClientPersistence == nil {
-		d.ClientPersistence = persistence.ClientPersistence(
+		d.ClientPersistence = persistence.PostgresSQLClientPersistence(
 			d.Logger,
-			d.DynamoDb,
-			properties.Properties().Aws.DynamoDB.ClientTableName,
+			d.PostgresSQLClient,
 		)
 	}
 	if d.SNSClient == nil {

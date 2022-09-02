@@ -8,7 +8,6 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/symbol"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/exceptions"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
-	"time"
 )
 
 type operationUseCase struct {
@@ -33,26 +32,20 @@ func OperationUseCase(logger adapters.LoggerAdapter,
 func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) error {
 	o.logger.Info("Trigger operations start", operationSummary)
 
-	clientSearchConfig := model.ClientSearchConfig{
-		Active:      true,
-		Locked:      false,
-		LockedUntil: time.Now().String(),
-	}
+	clientSearchConfig := model.NewClientSearchConfig()
 
 	switch operationSummary.OperationType() {
 	case operation_type.Buy:
-		quote, err := o.cryptoWebService.GetCryptoCurrentQuote(symbol.Bitcoin)
+		quote, err := o.cryptoWebService.GetCryptoCurrentQuote(symbol.BitcoinBRL)
 		if err != nil {
 			return o.abort(err, "Error while trying to get crypto current quote")
 		}
 
 		clientSearchConfig.MinimumCash = properties.Properties().MinimumCryptoSellOperation * quote
 		clientSearchConfig.BuyWeight = operationSummary
-		clientSearchConfig.SellWeight = summary.StrongSell
 	case operation_type.Sell:
 		clientSearchConfig.MinimumCrypto = properties.Properties().MinimumCryptoSellOperation
 		clientSearchConfig.SellWeight = operationSummary
-		clientSearchConfig.BuyWeight = summary.StrongBuy
 	default:
 		return o.abort(nil, "Operation must be of Buy or Sell type")
 	}

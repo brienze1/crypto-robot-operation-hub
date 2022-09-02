@@ -17,6 +17,7 @@
         1. [Client DB](#client-db)
             1. [Schema](#schema)
             2. [Operation](#operation)
+            3. [Query](#query)
     4. [Rules](#rules)
     5. [Built With](#built-with)
         1. [Dependencies](#dependencies)
@@ -57,7 +58,7 @@ Analysis summary indicators:
 
 Example of how the data received should look like:
 
-```
+```json
 {
     "summary": "BUY",
     "timestamp": "20-07-2022 02:18:10",
@@ -256,66 +257,111 @@ operations, etc...
 
 ##### Schema
 
-```
+```json
 {
     "id": "asdasdASD",
-    "active" true,
-    "locked_until" "20-07-2022 02:18:10",
-    "locked" false,
+    "active": true,
+    "locked_until": "20-07-2022 02:18:10",
+    "locked": false,
     "cash_amount": 100,
     "cash_reserved": 0.00,
     "crypto_amount": 0.0000312,
-    "crypto_symbol": "BTC",
     "crypto_reserved": 0.0,
+    "symbols": [
+        "BTC",
+        "SOL"
+    ],
     "buy_on": "STRONG_BUY",
     "sell_on": "SELL",
     "ops_timeout_seconds": 60,
     "operation_stop_loss": 50.00,
     "day_stop_loss": 500.00,
     "month_stop_loss": 500.00,
-    "month_sell_cap": 25000.00,
-    "symbols": [
-        "BTC",
-        "SOL"
-    ],
-    "monthly_summary": {
-        "month": "08/2022",
-        "amount_sold": 23000.42,
-        "amount_bought": 37123.42,
-        "profit": 1032.32,
-        "crypto": [
-            {
-                "symbol": "BTC",
-                "average_buy_value": 230020.42,
-                "average_sell_value": 235020.42,
-                "amount_sold": 0.00231,
-                "amount_bought": 0.00431,
-                "profit": -53.00
-            }
-        ]
-    },
-    "daily_summary": {
-        "day": "14/08/2022"
-        "amount_sold": 23000.42,
-        "amount_bought": 37123.42,
-        "profit": -53.00,
-        "crypto": [
-            {
-                "symbol": "BTC",
-                "average_buy_value": 230020.42,
-                "average_sell_value": 235020.42,
-                "amount_sold": 0.00231,
-                "amount_bought": 0.00431,
-                "profit": -53.00
-            }
-        ]
-    }
+    "summary":
+    [
+        {
+            "type": "MONTH",
+            "day": 1,
+            "month": 8,
+            "year": 2022,
+            "amount_sold": 23000.42,
+            "amount_bought": 37123.42,
+            "profit": 1032.32,
+            "crypto": [
+                {
+                    "symbol": "BTC",
+                    "average_buy_value": 230020.42,
+                    "average_sell_value": 235020.42,
+                    "amount_sold": 0.00231,
+                    "amount_bought": 0.00431,
+                    "profit": -53.00
+                }
+            ]
+        },
+        {
+            "type": "DAY",
+            "day": 14,
+            "month": 8,
+            "year": 2022,
+            "amount_sold": 23000.42,
+            "amount_bought": 37123.42,
+            "profit": -53.00,
+            "crypto": [
+                {
+                    "symbol": "BTC",
+                    "average_buy_value": 230020.42,
+                    "average_sell_value": 235020.42,
+                    "amount_sold": 0.00231,
+                    "amount_bought": 0.00431,
+                    "profit": -53.00
+                }
+            ]
+        }
+    ] 
 }
 ```
 
 ##### Operation
 
 This application supports the following operations to the Client DB:
+
+- Read ops:
+    - Used to read clients available for the current operation
+
+##### Query
+
+This is the query used to get clients from DB:
+
+```SQL
+SELECT clients.id
+FROM crypto_robot.clients
+         INNER JOIN crypto_robot.client_symbols cs
+                    on clients.id = cs.client_id
+         INNER JOIN crypto_robot.crypto c
+                    on cs.crypto_id = c.id
+         INNER JOIN crypto_robot.clients_summary sm
+                    on (clients.id = sm.client_id AND sm.type = 'MONTH' AND
+                        sm.month = date_part('month', (SELECT current_timestamp)) AND
+                        sm.year = date_part('year', (SELECT current_timestamp)))
+         INNER JOIN crypto_robot.clients_summary sd
+                    on (clients.id = sd.client_id AND sd.type = 'DAY' AND
+                        sd.day = date_part('day', (SELECT current_timestamp)) AND
+                        sd.month = date_part('month', (SELECT current_timestamp)) AND
+                        sd.year = date_part('year', (SELECT current_timestamp)))
+WHERE active = true
+  AND locked = false
+  AND locked_until <= now()
+  AND cash_amount - cash_reserved >= 100
+  AND crypto_amount - crypto_reserved >= 0.00000001
+  AND c.symbol = 'BTC'
+  AND sell_on >= 2
+  AND buy_on >= 2
+  AND day_stop_loss > sd.profit * -1
+  AND clients.month_stop_loss > sm.profit * -1
+ORDER BY id
+LIMIT 2 OFFSET 2
+;
+```
 
 - Read ops:
     - Used to read clients available for the current operation
@@ -327,6 +373,7 @@ Here are some rules that need to be implemented in this application.
 Implemented:
 
 [//]: # (- Client must have the coin symbol selected inside `config.symbols` variable to operate it)
+
 - Client must be active
 - Client must not be locked
 - Current date must be greater than locked_until value
@@ -334,14 +381,15 @@ Implemented:
 - Client must have enough crypto to sell minimum allowed amount
 - Buy operations should be triggered when the summary received is equal or less restricting than the `config.buy_on`
   value.
-  - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
-  be allowed, and the opposite should be denied.
+    - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
+      be allowed, and the opposite should be denied.
 - Sell operations should be triggered when the summary received is equal or less restricting than the `config.sell_on`
   value.
-  - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
-  be allowed, and the opposite should be denied.
+    - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
+      be allowed, and the opposite should be denied.
 
 [//]: # (TODO this should be moved to validation step)
+
 [//]: # (- Operations should not be triggered after monthly sell cap has been reached)
 
 [//]: # (    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly)
@@ -379,7 +427,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 #### Dependencies
 
 - [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
-- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS and DynamoDB integration 
+- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS and DynamoDB integration
 - [google/uuid](https://github.com/google/uuid): Used to generate uuids
 - [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
 
@@ -502,18 +550,18 @@ Obs: Make sure Docker is running before.
       ```bash
       go test ./...
       ```
-      
+
 - To run the integration tests:
-  - First godog needs to be installed:
-      - Windows/macOS/Linux/WSL
-        ```bash
-        go install github.com/cucumber/godog/cmd/godog@latest
-        ```
-  - Then run the tests 
-      - Windows/macOS/Linux/WSL
-        ```bash
-        cd test/integrated;godog run;cd ../..
-        ```
+    - First godog needs to be installed:
+        - Windows/macOS/Linux/WSL
+          ```bash
+          go install github.com/cucumber/godog/cmd/godog@latest
+          ```
+    - Then run the tests
+        - Windows/macOS/Linux/WSL
+          ```bash
+          cd test/integrated;godog run;cd ../..
+          ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

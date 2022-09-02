@@ -5,22 +5,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"sync"
 )
 
 var (
-	sessionInit  sync.Once
-	snsInit      sync.Once
-	dynamoDBInit sync.Once
+	sessionInit sync.Once
+	snsInit     sync.Once
 )
 
 var (
-	awsConfig      *aws.Config
-	snsClient      *sns.Client
-	dynamoDbClient *dynamodb.Client
+	awsConfig *aws.Config
+	snsClient *sns.Client
 )
 
 func getConfig() *aws.Config {
@@ -71,16 +68,4 @@ func SNSClient() *sns.Client {
 	}
 
 	return snsClient
-}
-
-func DynamoDBClient() *dynamodb.Client {
-	if awsConfig == nil {
-		dynamoDBInit.Do(func() {
-			cfg := getConfig()
-
-			dynamoDbClient = dynamodb.NewFromConfig(*cfg)
-		})
-	}
-
-	return dynamoDbClient
 }

@@ -28,21 +28,6 @@ func (s Summary) Name() string {
 	return string(s)
 }
 
-func (s Summary) Summary(summary string) Summary {
-	switch summary {
-	case string(StrongBuy):
-		return StrongBuy
-	case string(Buy):
-		return Buy
-	case string(Sell):
-		return Sell
-	case string(StrongSell):
-		return StrongSell
-	default:
-		return Neutral
-	}
-}
-
 func (s Summary) OperationType() operation_type.OperationType {
 	if s.Value() < 0 {
 		return operation_type.Sell
