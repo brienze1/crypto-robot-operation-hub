@@ -6,6 +6,7 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/usecase"
 	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/aws"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/eventservice"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/persistence"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/webservice"
@@ -22,6 +23,7 @@ type dependencyInjector struct {
 	Logger            adapters.LoggerAdapter
 	HTTPClient        adapters2.HTTPClientAdapter
 	CryptoWebService  adapters.CryptoWebServiceAdapter
+	SecretsManager    adapters2.SecretsManagerAdapter
 	PostgresSQLClient adapters2.PostgresSQLAdapter
 	ClientPersistence adapters.ClientPersistenceAdapter
 	SNSClient         adapters2.SNSAdapter
@@ -52,10 +54,12 @@ func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 	if d.CryptoWebService == nil {
 		d.CryptoWebService = webservice.BinanceWebService(d.Logger, d.HTTPClient)
 	}
-	if d.PostgresSQLClient == nil {
-		d.PostgresSQLClient = PostgresSQLClient(d.Logger)
+	if d.SecretsManager == nil {
+		d.SecretsManager = SecretsManagerClient()
 	}
-
+	if d.PostgresSQLClient == nil {
+		d.PostgresSQLClient = PostgresSQLClient(d.Logger, aws.SecretsManagerService(d.Logger, d.SecretsManager))
+	}
 	if d.ClientPersistence == nil {
 		d.ClientPersistence = persistence.PostgresSQLClientPersistence(
 			d.Logger,

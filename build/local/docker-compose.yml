@@ -7,7 +7,7 @@ services:
       - '4566-4597:4566-4597'
     environment:
       - EDGE_PORT=4566
-      - SERVICES=sns,sqs,dynamodb,cloudwatch
+      - SERVICES=sns,sqs,dynamodb,secretsmanager,cloudwatch
       - DEBUG=1
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d

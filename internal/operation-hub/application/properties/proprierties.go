@@ -13,11 +13,11 @@ type properties struct {
 	BinanceCryptoSymbolPriceTickerUrl string
 	CryptoOperationTriggerTopicArn    string
 	Aws                               *aws
-	DB                                *DB
 }
 
 type aws struct {
-	Config *awsConfig
+	Config     *awsConfig
+	SecretName string
 }
 
 type awsConfig struct {
@@ -29,18 +29,11 @@ type awsConfig struct {
 	OverrideConfig bool
 }
 
-type DB struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-}
-
 var once sync.Once
 
 var propertiesInstance *properties
 
+// Properties class is used to store and use env variables in runtime
 func Properties() *properties {
 	if propertiesInstance == nil {
 		propertiesLoaded := loadProperties()
@@ -65,11 +58,7 @@ func loadProperties() *properties {
 	awsAccessSecret := os.Getenv("AWS_ACCESS_SECRET")
 	awsAccessToken := os.Getenv("AWS_ACCESS_TOKEN")
 	awsOverrideConfig := getBoolEnvVariable("AWS_OVERRIDE_CONFIG")
-	host := os.Getenv("DB_HOST")
-	port := getIntEnvVariable("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+	awsSecretName := os.Getenv("AWS_SECRET_NAME")
 
 	return &properties{
 		Profile:                           profile,
@@ -86,13 +75,7 @@ func loadProperties() *properties {
 				Token:          awsAccessToken,
 				OverrideConfig: awsOverrideConfig,
 			},
-		},
-		DB: &DB{
-			Host:     host,
-			Port:     port,
-			User:     user,
-			Password: password,
-			DBName:   dbName,
+			SecretName: awsSecretName,
 		},
 	}
 }
@@ -103,14 +86,6 @@ func getDoubleEnvVariable(key string) float64 {
 		panic(err.Error() + ". Failed to load property \"" + key + "\" from environment")
 	}
 
-	return value
-}
-
-func getIntEnvVariable(key string) int {
-	value, err := strconv.Atoi(os.Getenv(key))
-	if err != nil {
-		panic(err.Error() + ". Failed to load property \"" + key + "\" from environment")
-	}
 	return value
 }
 

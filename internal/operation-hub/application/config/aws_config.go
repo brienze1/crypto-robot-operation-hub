@@ -5,19 +5,22 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"sync"
 )
 
 var (
-	sessionInit sync.Once
-	snsInit     sync.Once
+	sessionInit        sync.Once
+	snsInit            sync.Once
+	secretsManagerInit sync.Once
 )
 
 var (
-	awsConfig *aws.Config
-	snsClient *sns.Client
+	awsConfig            *aws.Config
+	snsClient            *sns.Client
+	secretsManagerClient *secretsmanager.Client
 )
 
 func getConfig() *aws.Config {
@@ -60,7 +63,7 @@ func NewEndpointResolver() aws.EndpointResolverWithOptionsFunc {
 }
 
 func SNSClient() *sns.Client {
-	if awsConfig == nil {
+	if snsClient == nil {
 		snsInit.Do(func() {
 			cfg := getConfig()
 			snsClient = sns.NewFromConfig(*cfg)
@@ -68,4 +71,15 @@ func SNSClient() *sns.Client {
 	}
 
 	return snsClient
+}
+
+func SecretsManagerClient() *secretsmanager.Client {
+	if secretsManagerClient == nil {
+		secretsManagerInit.Do(func() {
+			cfg := getConfig()
+			secretsManagerClient = secretsmanager.NewFromConfig(*cfg)
+		})
+	}
+
+	return secretsManagerClient
 }
