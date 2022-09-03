@@ -58,14 +58,8 @@ func createSQSEvent() events.SQSEvent {
 	}
 }
 
-func createSNSEvent(message string) events.SNSEvent {
-	return events.SNSEvent{
-		Records: []events.SNSEventRecord{
-			{
-				SNS: events.SNSEntity{
-					Message: message,
-				},
-			},
-		},
+func createSNSEvent(message string) events.SNSEntity {
+	return events.SNSEntity{
+		Message: message,
 	}
 }

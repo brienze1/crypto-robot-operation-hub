@@ -36,16 +36,16 @@ func (p *postgresSQLClientPersistence) GetClients(config *model.ClientSearchConf
 
 	clientsScan, err := db.Query(
 		"SELECT clients.id\n"+
-			"FROM crypto_robot.clients\n"+
-			"         INNER JOIN crypto_robot.client_symbols cs\n"+
+			"FROM clients\n"+
+			"         INNER JOIN client_symbols cs\n"+
 			"                    on clients.id = cs.client_id\n"+
-			"         INNER JOIN crypto_robot.crypto c\n"+
+			"         INNER JOIN crypto c\n"+
 			"                    on cs.crypto_id = c.id\n"+
-			"         INNER JOIN crypto_robot.clients_summary sm\n"+
+			"         INNER JOIN clients_summary sm\n"+
 			"                    on (clients.id = sm.client_id AND sm.type = 'MONTH' AND\n"+
 			"                        sm.month = date_part('month', (SELECT current_timestamp)) AND\n"+
 			"                        sm.year = date_part('year', (SELECT current_timestamp)))\n"+
-			"         INNER JOIN crypto_robot.clients_summary sd\n"+
+			"         INNER JOIN clients_summary sd\n"+
 			"                    on (clients.id = sd.client_id AND sd.type = 'DAY' AND\n"+
 			"                        sd.day = date_part('day', (SELECT current_timestamp)) AND\n"+
 			"                        sd.month = date_part('month', (SELECT current_timestamp)) AND\n"+
@@ -55,7 +55,7 @@ func (p *postgresSQLClientPersistence) GetClients(config *model.ClientSearchConf
 			"  AND locked_until <= now()\n"+
 			"  AND cash_amount - cash_reserved >= $3\n"+
 			"  AND crypto_amount - crypto_reserved >= $4\n"+
-			"  AND c.symbol = '$5'\n"+
+			"  AND c.symbol = $5\n"+
 			"  AND sell_on >= $6\n"+
 			"  AND buy_on >= $7\n"+
 			"  AND day_stop_loss > sd.profit * -1\n"+
@@ -67,9 +67,9 @@ func (p *postgresSQLClientPersistence) GetClients(config *model.ClientSearchConf
 		config.Locked,
 		config.MinimumCash,
 		config.MinimumCrypto,
-		config.Symbol,
-		config.SellWeight,
-		config.BuyWeight,
+		config.Symbol.Name(),
+		config.SellWeight.Value(), //TODO fix to int
+		config.BuyWeight.Value(),
 		config.Limit,
 		config.Offset,
 	)

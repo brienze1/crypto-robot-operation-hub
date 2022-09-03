@@ -2,9 +2,9 @@ package config
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
+	_ "github.com/lib/pq"
 )
 
 type dbConfig struct {
@@ -18,7 +18,7 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "demo"
+	dbname   = "crypto_robot"
 )
 
 func PostgresSQLClient(logger adapters.LoggerAdapter) *dbConfig {
@@ -34,12 +34,12 @@ func (d *dbConfig) OpenConnection() (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		return nil, errors.New("cannot open DB connection")
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, errors.New("cannot open DB connection")
+		return nil, err
 	}
 
 	return db, nil

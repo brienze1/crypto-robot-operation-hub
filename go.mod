@@ -12,6 +12,7 @@ require (
 	github.com/cucumber/godog v0.12.5
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	github.com/lib/pq v1.10.6
 	github.com/stretchr/testify v1.7.2
 )
 
