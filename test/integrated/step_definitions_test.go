@@ -12,11 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	dto2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/dto"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/operation_type"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/summary"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/symbol"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/dto"
+	"github.com/brienze1/crypto-robot-operation-hub/pkg/log"
 	"github.com/cucumber/godog"
 	"github.com/google/uuid"
 	"net/http"
@@ -108,9 +111,14 @@ func (ctx contextMock) Value(any) any {
 }
 
 var (
-	expectedPrice float64
-	ctx           contextMock
-	event         *events.SQSEvent
+	expectedPrice  float64
+	ctx            contextMock
+	event          *events.SQSEvent
+	summaryValue   summary.Summary
+	expectedCash   float64
+	expectedCrypto float64
+	sellWeight     int
+	buyWeight      int
 )
 
 func testEnvVariablesWereLoaded() {
@@ -136,12 +144,12 @@ func postgresSQLIs(status string) error {
 }
 
 func binanceApiIs(status string) error {
-	httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	expectedPrice = 21537.81000000
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if status != "up" {
 			http.Error(w, "error test", 500)
 		}
 
-		expectedPrice = 21537.81000000
 		response, _ := json.Marshal(dto.Ticker{
 			Symbol: string(symbol.Bitcoin),
 			Price:  fmt.Sprintf("%f", expectedPrice),
@@ -150,6 +158,8 @@ func binanceApiIs(status string) error {
 
 		_, _ = w.Write(response)
 	}))
+
+	properties.Properties().BinanceCryptoSymbolPriceTickerUrl = server.URL
 
 	return nil
 }
@@ -167,7 +177,22 @@ func snsServiceIs(status string) error {
 }
 
 func iReceiveMessageWithSummaryEquals(value string) error {
-	event = createSQSEvent(summary.Summary(value))
+	summaryValue = summary.Summary(value)
+
+	switch summaryValue.OperationType() {
+	case operation_type.Buy:
+		expectedCash = expectedPrice * properties.Properties().MinimumCryptoBuyOperation
+		expectedCrypto = 0.0
+		sellWeight = summary.StrongSell.Value()
+		buyWeight = summaryValue.Value()
+	case operation_type.Sell:
+		expectedCash = 0.0
+		expectedCrypto = expectedPrice * properties.Properties().MinimumCryptoSellOperation
+		sellWeight = summaryValue.Value()
+		buyWeight = summary.StrongBuy.Value()
+	}
+
+	event = createSQSEvent(summaryValue)
 
 	ctx = contextMock{}
 
@@ -185,7 +210,17 @@ func thereAreClientsAvailableInDB(numberOfClients int) error {
 		rows.AddRow(client.Id)
 	}
 
-	postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnRows(rows)
+	postgresSQL.dbMock.ExpectQuery("SELECT").WithArgs(
+		true,
+		false,
+		expectedCash,
+		expectedCrypto,
+		symbol.Bitcoin.Name(),
+		sellWeight,
+		buyWeight,
+		20,
+		0).WillReturnRows(rows)
+	postgresSQL.dbMock.ExpectClose()
 
 	return nil
 }
@@ -195,6 +230,10 @@ func handlerIsTriggered() error {
 	config.DependencyInjector().Logger = &loggerMock{}
 
 	handlerError = operation_hub.Main().Handle(ctx, *event)
+
+	if handlerError != nil {
+		log.Logger().Error(handlerError, "error occurred")
+	}
 
 	return nil
 }

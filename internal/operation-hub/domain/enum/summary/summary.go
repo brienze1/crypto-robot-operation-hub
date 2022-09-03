@@ -16,8 +16,8 @@ var values = map[Summary]int{
 	StrongBuy:  2,
 	Buy:        1,
 	Neutral:    0,
-	Sell:       -1,
-	StrongSell: -2,
+	Sell:       1,
+	StrongSell: 2,
 }
 
 func (s Summary) Value() int {
@@ -29,10 +29,10 @@ func (s Summary) Name() string {
 }
 
 func (s Summary) OperationType() operation_type.OperationType {
-	if s.Value() < 0 {
+	if s.Name() == Sell.Name() || s.Name() == StrongSell.Name() {
 		return operation_type.Sell
 	}
-	if s.Value() > 0 {
+	if s.Name() == Buy.Name() || s.Name() == StrongBuy.Name() {
 		return operation_type.Buy
 	}
 	return operation_type.None

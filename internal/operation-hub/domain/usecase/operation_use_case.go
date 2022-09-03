@@ -41,7 +41,7 @@ func (o *operationUseCase) TriggerOperations(operationSummary summary.Summary) e
 			return o.abort(err, "Error while trying to get crypto current quote")
 		}
 
-		clientSearchConfig.MinimumCash = properties.Properties().MinimumCryptoSellOperation * quote
+		clientSearchConfig.MinimumCash = properties.Properties().MinimumCryptoBuyOperation * quote
 		clientSearchConfig.BuyWeight = operationSummary
 	case operation_type.Sell:
 		clientSearchConfig.MinimumCrypto = properties.Properties().MinimumCryptoSellOperation

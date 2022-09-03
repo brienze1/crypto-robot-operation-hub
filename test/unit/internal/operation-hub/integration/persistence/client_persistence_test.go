@@ -97,7 +97,23 @@ func setup() {
 func TestGetClientsSuccess(t *testing.T) {
 	setup()
 
-	postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnRows(expectedRows)
+	postgresSQL.dbMock.ExpectQuery("SELECT").WithArgs(config.Active,
+		config.Locked,
+		config.MinimumCash,
+		config.MinimumCrypto,
+		config.Symbol.Name(),
+		config.SellWeight.Value(),
+		config.BuyWeight.Value(),
+		config.Limit,
+		config.Offset).WithArgs(config.Active,
+		config.Locked,
+		config.MinimumCash,
+		config.MinimumCrypto,
+		config.Symbol.Name(),
+		config.SellWeight.Value(),
+		config.BuyWeight.Value(),
+		config.Limit,
+		config.Offset).WillReturnRows(expectedRows)
 	postgresSQL.dbMock.ExpectClose()
 
 	clients, err := clientPersistence.GetClients(config)
@@ -130,7 +146,15 @@ func TestGetClientsOpenConnectionFailure(t *testing.T) {
 func TestGetClientsQueryFailure(t *testing.T) {
 	setup()
 
-	postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnError(errors.New("test error"))
+	postgresSQL.dbMock.ExpectQuery("SELECT").WithArgs(config.Active,
+		config.Locked,
+		config.MinimumCash,
+		config.MinimumCrypto,
+		config.Symbol.Name(),
+		config.SellWeight.Value(),
+		config.BuyWeight.Value(),
+		config.Limit,
+		config.Offset).WillReturnError(errors.New("test error"))
 	postgresSQL.dbMock.ExpectClose()
 
 	clients, err := clientPersistence.GetClients(config)
@@ -152,7 +176,15 @@ func TestGetClientsScanFailure(t *testing.T) {
 		AddRow(1, "two").
 		RowError(1, fmt.Errorf("row error"))
 
-	postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnRows(expectedRows)
+	postgresSQL.dbMock.ExpectQuery("SELECT").WithArgs(config.Active,
+		config.Locked,
+		config.MinimumCash,
+		config.MinimumCrypto,
+		config.Symbol.Name(),
+		config.SellWeight.Value(),
+		config.BuyWeight.Value(),
+		config.Limit,
+		config.Offset).WillReturnRows(expectedRows)
 	postgresSQL.dbMock.ExpectClose()
 
 	clients, err := clientPersistence.GetClients(config)
