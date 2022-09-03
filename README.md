@@ -60,171 +60,171 @@ Example of how the data received should look like:
 
 ```json
 {
-    "summary": "BUY",
-    "timestamp": "20-07-2022 02:18:10",
-    "analysed_data": [
+  "summary": "BUY",
+  "timestamp": "20-07-2022 02:18:10",
+  "analysed_data": [
+    {
+      "interval": "0NE_MINUTE",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "BUY",
+      "analysis": [
         {
-          "interval": "0NE_MINUTE",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "BUY",
-          "analysis": [
-            {
-                "metric": "SIMPLE_MOVING_AVERAGE",
-                "indicator": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
+          "metric": "SIMPLE_MOVING_AVERAGE",
+          "indicator": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
         },
         {
-          "interval": "FIVE_MINUTES",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
-        },
-        {
-          "interval": "FIFTEEN_MINUTES",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
-        },
-        {
-          "interval": "THIRTY_MINUTES",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
-        },
-        {
-          "interval": "ONE_HOUR",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
-        },
-        {
-          "interval": "SIX_HOURS",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
-        },
-        {
-          "interval": "ONE_DAY",
-          "timestamp": "20-07-2022 02:18:10",
-          "summary": "STRONG_BUY",
-          "analysis": [
-            {
-                "indicator": "SIMPLE_MOVING_AVERAGE",
-                "summary": "BUY",
-                "score": {
-                    "buy": 4,
-                    "sell": 2
-                }
-            },
-            {
-                "indicator": "EXPONENTIAL_MOVING_AVERAGE",
-                "summary": "NEUTRAL",
-                "score": {
-                    "buy": 3,
-                    "sell": 3
-                }
-            }
-          ]
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
         }
-    ]
+      ]
+    },
+    {
+      "interval": "FIVE_MINUTES",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    },
+    {
+      "interval": "FIFTEEN_MINUTES",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    },
+    {
+      "interval": "THIRTY_MINUTES",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    },
+    {
+      "interval": "ONE_HOUR",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    },
+    {
+      "interval": "SIX_HOURS",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    },
+    {
+      "interval": "ONE_DAY",
+      "timestamp": "20-07-2022 02:18:10",
+      "summary": "STRONG_BUY",
+      "analysis": [
+        {
+          "indicator": "SIMPLE_MOVING_AVERAGE",
+          "summary": "BUY",
+          "score": {
+            "buy": 4,
+            "sell": 2
+          }
+        },
+        {
+          "indicator": "EXPONENTIAL_MOVING_AVERAGE",
+          "summary": "NEUTRAL",
+          "score": {
+            "buy": 3,
+            "sell": 3
+          }
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -252,72 +252,72 @@ Example of how the line should look like:
 #### Client DB
 
 Client DB is the database that contains the client information and configuration needed to trigger the operations.
-For this DB, DynamoDB was chosen because of the easy implementation, schema changes are also easy to implement, speed of
-operations, etc...
+For this DB, Postgres was chosen because of the query performance.
 
 ##### Schema
 
+[//]: # (TODO fix schema)
+
 ```json
 {
-    "id": "asdasdASD",
-    "active": true,
-    "locked_until": "20-07-2022 02:18:10",
-    "locked": false,
-    "cash_amount": 100,
-    "cash_reserved": 0.00,
-    "crypto_amount": 0.0000312,
-    "crypto_reserved": 0.0,
-    "symbols": [
-        "BTC",
-        "SOL"
-    ],
-    "buy_on": "STRONG_BUY",
-    "sell_on": "SELL",
-    "ops_timeout_seconds": 60,
-    "operation_stop_loss": 50.00,
-    "day_stop_loss": 500.00,
-    "month_stop_loss": 500.00,
-    "summary":
-    [
+  "id": "uuid",
+  "active": true,
+  "locked_until": "20-07-2022 02:18:10",
+  "locked": false,
+  "cash_amount": 100,
+  "cash_reserved": 0.00,
+  "crypto_amount": 0.0000312,
+  "crypto_reserved": 0.0,
+  "symbols": [
+    "BTC",
+    "SOL"
+  ],
+  "buy_on": "STRONG_BUY",
+  "sell_on": "SELL",
+  "ops_timeout_seconds": 60,
+  "operation_stop_loss": 50.00,
+  "day_stop_loss": 500.00,
+  "month_stop_loss": 500.00,
+  "summary": [
+    {
+      "type": "MONTH",
+      "day": 1,
+      "month": 8,
+      "year": 2022,
+      "amount_sold": 23000.42,
+      "amount_bought": 37123.42,
+      "profit": 1032.32,
+      "crypto": [
         {
-            "type": "MONTH",
-            "day": 1,
-            "month": 8,
-            "year": 2022,
-            "amount_sold": 23000.42,
-            "amount_bought": 37123.42,
-            "profit": 1032.32,
-            "crypto": [
-                {
-                    "symbol": "BTC",
-                    "average_buy_value": 230020.42,
-                    "average_sell_value": 235020.42,
-                    "amount_sold": 0.00231,
-                    "amount_bought": 0.00431,
-                    "profit": -53.00
-                }
-            ]
-        },
-        {
-            "type": "DAY",
-            "day": 14,
-            "month": 8,
-            "year": 2022,
-            "amount_sold": 23000.42,
-            "amount_bought": 37123.42,
-            "profit": -53.00,
-            "crypto": [
-                {
-                    "symbol": "BTC",
-                    "average_buy_value": 230020.42,
-                    "average_sell_value": 235020.42,
-                    "amount_sold": 0.00231,
-                    "amount_bought": 0.00431,
-                    "profit": -53.00
-                }
-            ]
+          "symbol": "BTC",
+          "average_buy_value": 230020.42,
+          "average_sell_value": 235020.42,
+          "amount_sold": 0.00231,
+          "amount_bought": 0.00431,
+          "profit": -53.00
         }
-    ] 
+      ]
+    },
+    {
+      "type": "DAY",
+      "day": 14,
+      "month": 8,
+      "year": 2022,
+      "amount_sold": 23000.42,
+      "amount_bought": 37123.42,
+      "profit": -53.00,
+      "crypto": [
+        {
+          "symbol": "BTC",
+          "average_buy_value": 230020.42,
+          "average_sell_value": 235020.42,
+          "amount_sold": 0.00231,
+          "amount_bought": 0.00431,
+          "profit": -53.00
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -334,16 +334,16 @@ This is the query used to get clients from DB:
 
 ```SQL
 SELECT clients.id
-FROM crypto_robot.clients
-         INNER JOIN crypto_robot.client_symbols cs
+FROM clients
+         INNER JOIN client_symbols cs
                     on clients.id = cs.client_id
-         INNER JOIN crypto_robot.crypto c
+         INNER JOIN crypto c
                     on cs.crypto_id = c.id
-         INNER JOIN crypto_robot.clients_summary sm
+         INNER JOIN clients_summary sm
                     on (clients.id = sm.client_id AND sm.type = 'MONTH' AND
                         sm.month = date_part('month', (SELECT current_timestamp)) AND
                         sm.year = date_part('year', (SELECT current_timestamp)))
-         INNER JOIN crypto_robot.clients_summary sd
+         INNER JOIN clients_summary sd
                     on (clients.id = sd.client_id AND sd.type = 'DAY' AND
                         sd.day = date_part('day', (SELECT current_timestamp)) AND
                         sd.month = date_part('month', (SELECT current_timestamp)) AND
@@ -372,13 +372,12 @@ Here are some rules that need to be implemented in this application.
 
 Implemented:
 
-[//]: # (- Client must have the coin symbol selected inside `config.symbols` variable to operate it)
-
 - Client must be active
 - Client must not be locked
 - Current date must be greater than locked_until value
 - Client must have enough cash to buy minimum allowed amount of crypto
 - Client must have enough crypto to sell minimum allowed amount
+- Client must have the coin symbol selected inside `config.symbols` variable to operate it
 - Buy operations should be triggered when the summary received is equal or less restricting than the `config.buy_on`
   value.
     - For example if the config value is equal to `BUY` and a `STRONG_BUY` analysis was received, the operation should
@@ -387,36 +386,14 @@ Implemented:
   value.
     - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
       be allowed, and the opposite should be denied.
-
-[//]: # (TODO this should be moved to validation step)
-
-[//]: # (- Operations should not be triggered after monthly sell cap has been reached)
-
-[//]: # (    - Operations should also check if the amount won't go over when sell operation is triggered, for example if monthly)
-
-[//]: # (      total amount is 20.000,00 and the cap is 25.000,00 the maximum operation value triggered should be of 2.500,00,)
-
-[//]: # (      because when the operation is completed and the crypto is sold the expectation is that the value should be equal)
-
-[//]: # (      or close to the bought amount &#40;witch mas of 2500&#41; totalizing 25.000,00 monthly sell value.)
-
-[//]: # (    - If monthly cap is 0 it can be ignored.)
-
-[//]: # (- Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to)
-
-[//]: # (  the `config.day_stop_loss` value.)
-
-[//]: # (    - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values)
-
-[//]: # (      should be updated to start a new day.)
-
-[//]: # (- Operations should not be triggered if `monthly_summary.proffit` has a negative value of more than or equal to)
-
-[//]: # (  the `config.month_stop_loss` value.)
-
-[//]: # (    - `monthly_summary.month` value should be checked to see if current month has changed, in this case, the values)
-
-[//]: # (      should be updated to start a new month.)
+- Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to
+  the `config.day_stop_loss` value.
+    - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values
+      should be updated to start a new day.
+- Operations should not be triggered if `monthly_summary.proffit` has a negative value of more than or equal to
+  the `config.month_stop_loss` value.
+    - `monthly_summary.month` value should be checked to see if current month has changed, in this case, the values
+      should be updated to start a new month.
 
 ### Built With
 
@@ -427,7 +404,8 @@ using GitHub actions. Local environment is created using localstack for testing 
 #### Dependencies
 
 - [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
-- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS and DynamoDB integration
+- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS integration
+- [github.com/lib/pq](https://github.com/lib/pq): PostgresSQL driver for Go's database/sql
 - [google/uuid](https://github.com/google/uuid): Used to generate uuids
 - [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
 
@@ -439,6 +417,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 - [cucumber/godog](https://github.com/cucumber/godog): Used to run integration tests
 - [stretchr/testify](https://github.com/stretchr/testify): Used to perform test assertions
+- [github.com/DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock): Used to integrate sql into tests
 
 ### Roadmap
 
@@ -448,7 +427,8 @@ using GitHub actions. Local environment is created using localstack for testing 
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
 - [x] Document everything in Readme
-- [ ] Change to use Postgres instead of DynamoDB
+- [x] Change to use Postgres instead of DynamoDB
+- [ ] Use secret manager to get DB password
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
