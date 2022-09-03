@@ -1,7 +1,6 @@
 package persistence
 
 import (
-	"database/sql"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
 	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
@@ -27,12 +26,7 @@ func (p *postgresSQLClientPersistence) GetClients(config *model.ClientSearchConf
 	if err != nil {
 		return nil, p.abort(err, "Open DB connection error")
 	}
-	defer func(db *sql.DB) {
-		err = db.Close()
-		if err != nil {
-			p.logger.Error(err, "Could not close DB connection")
-		}
-	}(db)
+	defer db.Close()
 
 	clientsScan, err := db.Query(
 		"SELECT clients.id\n"+
