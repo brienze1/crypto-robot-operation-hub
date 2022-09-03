@@ -3,6 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	_ "github.com/lib/pq"
 )
@@ -11,16 +12,6 @@ type dbConfig struct {
 	logger adapters.LoggerAdapter
 }
 
-// TODO get from properties
-// TODO get pass from secret manager
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "crypto_robot"
-)
-
 func PostgresSQLClient(logger adapters.LoggerAdapter) *dbConfig {
 	return &dbConfig{
 		logger: logger,
@@ -28,9 +19,15 @@ func PostgresSQLClient(logger adapters.LoggerAdapter) *dbConfig {
 }
 
 func (d *dbConfig) OpenConnection() (*sql.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	psqlInfo := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		properties.Properties().DB.Host,
+		properties.Properties().DB.Port,
+		properties.Properties().DB.User,
+		// TODO get pass from secret manager
+		properties.Properties().DB.Password,
+		properties.Properties().DB.DBName,
+	)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {

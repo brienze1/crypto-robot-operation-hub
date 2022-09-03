@@ -13,15 +13,11 @@ type properties struct {
 	BinanceCryptoSymbolPriceTickerUrl string
 	CryptoOperationTriggerTopicArn    string
 	Aws                               *aws
+	DB                                *DB
 }
 
 type aws struct {
-	Config   *awsConfig
-	DynamoDB *dynamoDB
-}
-
-type dynamoDB struct {
-	ClientTableName string
+	Config *awsConfig
 }
 
 type awsConfig struct {
@@ -31,6 +27,14 @@ type awsConfig struct {
 	AccessSecret   string
 	Token          string
 	OverrideConfig bool
+}
+
+type DB struct {
+	Host     string
+	Port     int
+	User     string
+	Password string
+	DBName   string
 }
 
 var once sync.Once
@@ -61,7 +65,11 @@ func loadProperties() *properties {
 	awsAccessSecret := os.Getenv("AWS_ACCESS_SECRET")
 	awsAccessToken := os.Getenv("AWS_ACCESS_TOKEN")
 	awsOverrideConfig := getBoolEnvVariable("AWS_OVERRIDE_CONFIG")
-	clientTableName := os.Getenv("AWS_DYNAMODB_CLIENT_TABLE_NAME")
+	host := os.Getenv("DB_HOST")
+	port := getIntEnvVariable("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
 
 	return &properties{
 		Profile:                           profile,
@@ -78,9 +86,13 @@ func loadProperties() *properties {
 				Token:          awsAccessToken,
 				OverrideConfig: awsOverrideConfig,
 			},
-			DynamoDB: &dynamoDB{
-				ClientTableName: clientTableName,
-			},
+		},
+		DB: &DB{
+			Host:     host,
+			Port:     port,
+			User:     user,
+			Password: password,
+			DBName:   dbName,
 		},
 	}
 }
@@ -88,9 +100,17 @@ func loadProperties() *properties {
 func getDoubleEnvVariable(key string) float64 {
 	value, err := strconv.ParseFloat(os.Getenv(key), 64)
 	if err != nil {
-		panic("Failed to load property \"" + key + "\" from environment")
+		panic(err.Error() + ". Failed to load property \"" + key + "\" from environment")
 	}
 
+	return value
+}
+
+func getIntEnvVariable(key string) int {
+	value, err := strconv.Atoi(os.Getenv(key))
+	if err != nil {
+		panic(err.Error() + ". Failed to load property \"" + key + "\" from environment")
+	}
 	return value
 }
 

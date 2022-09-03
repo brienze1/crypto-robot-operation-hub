@@ -1,6 +1,7 @@
 package properties
 
 import (
+	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -9,8 +10,8 @@ import (
 )
 
 func setup() {
-	_ = os.Setenv("MINIMUM_CRYPTO_SELL_OPERATION", "0.1")
-	_ = os.Setenv("MINIMUM_CRYPTO_BUY_OPERATION", "0.1")
+	os.Clearenv()
+	config.LoadTestEnv()
 }
 
 func TestPropertiesMinimumCryptoSellOperationFailure(t *testing.T) {
