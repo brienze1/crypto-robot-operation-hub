@@ -12,6 +12,17 @@ services:
     volumes:
       - ./scripts/localstack:/docker-entrypoint-initaws.d
       - /var/run/docker.sock:/var/run/docker.sock
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      #      - db:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
   crypto-robot-operation-hub:
       container_name: operation-hub-lambda
       build:
@@ -32,3 +43,6 @@ services:
       sh -c "sh /init-scripts/localstack/01-profile-creation.sh && 
       sh /init-scripts/lambda/01-wait-for-localstack.sh && 
       sh /init-scripts/lambda/02-resources-creation.sh"
+#volumes:
+#  db:
+#    driver: local
