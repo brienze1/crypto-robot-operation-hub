@@ -428,7 +428,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 - [x] Create Docker compose for local infrastructure
 - [x] Document everything in Readme
 - [x] Change to use Postgres instead of DynamoDB
-- [ ] Use secret manager to get DB password
+- [x] Use secret manager to get DB password
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

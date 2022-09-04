@@ -32,6 +32,7 @@ type dependencyInjector struct {
 	Handler           adapters3.HandlerAdapter
 }
 
+// DependencyInjector constructor method.
 func DependencyInjector() *dependencyInjector {
 	if injector == nil {
 		dependencyInjectorInit.Do(func() {
@@ -42,6 +43,7 @@ func DependencyInjector() *dependencyInjector {
 	return injector
 }
 
+// WireDependencies is used to wire the dependencies together. Also instantiates new variables in case of nil values.
 func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 	if d.Logger == nil {
 		d.Logger = log.Logger()

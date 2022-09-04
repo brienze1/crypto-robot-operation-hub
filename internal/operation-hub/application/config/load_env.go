@@ -10,6 +10,8 @@ import (
 const alternateParentFolderName = "crypto-robot-operation-hub"
 const configDirPath = "/config/"
 
+// LoadEnv class is responsible for loading order of .env files. Uses godotenv.Load to inject env variables from
+// file into environment;
 func LoadEnv() {
 	env := os.Getenv("OPERATION_HUB_ENV")
 
@@ -44,6 +46,7 @@ const (
 	test env = "test"
 )
 
+// LoadTestEnv is used in tests to load .env.test file variables.
 func LoadTestEnv() {
 	_ = os.Setenv("OPERATION_HUB_ENV", string(test))
 

@@ -16,6 +16,7 @@ type handler struct {
 	logger           adapters.LoggerAdapter
 }
 
+// Handler constructor method, used to inject dependencies.
 func Handler(operationUseCase adapters.OperationUseCaseAdapter, logger adapters.LoggerAdapter) *handler {
 	return &handler{
 		operationUseCase: operationUseCase,
