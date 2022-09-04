@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
@@ -47,7 +46,7 @@ func (s *secretsManagerService) GetSecret(secretName string) (*dto.Secrets, erro
 		decodedBinarySecretBytes := make([]byte, base64.StdEncoding.DecodedLen(len(result.SecretBinary)))
 		decodedLen, err := base64.StdEncoding.Decode(decodedBinarySecretBytes, result.SecretBinary)
 		if err != nil {
-			fmt.Println("Base64 Decode Error:", err)
+			return nil, s.abort(err, "error while decoding secret binary")
 		}
 		decodedBinarySecret = string(decodedBinarySecretBytes[:decodedLen])
 		err = json.Unmarshal([]byte(decodedBinarySecret), &secrets)
