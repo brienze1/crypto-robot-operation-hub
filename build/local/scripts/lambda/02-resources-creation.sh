@@ -61,3 +61,4 @@ aws dynamodb create-table \
 --key-schema AttributeName=client_id,KeyType=HASH \
 --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
 --endpoint-url=http://localstack:4566
+

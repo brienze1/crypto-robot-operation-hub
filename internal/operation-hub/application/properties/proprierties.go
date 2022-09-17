@@ -16,8 +16,8 @@ type properties struct {
 }
 
 type aws struct {
-	Config     *awsConfig
-	SecretName string
+	Config   *awsConfig
+	DynamoDB *dynamoDB
 }
 
 type awsConfig struct {
@@ -27,6 +27,10 @@ type awsConfig struct {
 	AccessSecret   string
 	Token          string
 	OverrideConfig bool
+}
+
+type dynamoDB struct {
+	ClientTableName string
 }
 
 var once sync.Once
@@ -58,7 +62,7 @@ func loadProperties() *properties {
 	awsAccessSecret := os.Getenv("AWS_ACCESS_SECRET")
 	awsAccessToken := os.Getenv("AWS_ACCESS_TOKEN")
 	awsOverrideConfig := getBoolEnvVariable("AWS_OVERRIDE_CONFIG")
-	awsSecretName := os.Getenv("AWS_SECRET_NAME")
+	clientTableName := os.Getenv("AWS_DYNAMODB_CLIENT_TABLE_NAME")
 
 	return &properties{
 		Profile:                           profile,
@@ -75,7 +79,9 @@ func loadProperties() *properties {
 				Token:          awsAccessToken,
 				OverrideConfig: awsOverrideConfig,
 			},
-			SecretName: awsSecretName,
+			DynamoDB: &dynamoDB{
+				ClientTableName: clientTableName,
+			},
 		},
 	}
 }
