@@ -10,6 +10,7 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/persistence"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/webservice"
 	"github.com/brienze1/crypto-robot-operation-hub/pkg/log"
+	"github.com/brienze1/crypto-robot-operation-hub/pkg/time_utils"
 	"net/http"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ type dependencyInjector struct {
 	HTTPClient        adapters2.HTTPClientAdapter
 	CryptoWebService  adapters.CryptoWebServiceAdapter
 	DynamoDBClient    adapters2.DynamoDBAdapter
+	TimeSource        adapters.TimeAdapter
 	ClientPersistence adapters.ClientPersistenceAdapter
 	SNSClient         adapters2.SNSAdapter
 	EventService      adapters.EventServiceAdapter
@@ -57,10 +59,14 @@ func (d *dependencyInjector) WireDependencies() *dependencyInjector {
 	if d.DynamoDBClient == nil {
 		d.DynamoDBClient = DynamoDBClient()
 	}
+	if d.TimeSource == nil {
+		d.TimeSource = time_utils.Time()
+	}
 	if d.ClientPersistence == nil {
 		d.ClientPersistence = persistence.DynamoDBClientPersistence(
 			d.Logger,
-			DynamoDBClient(),
+			d.DynamoDBClient,
+			d.TimeSource,
 		)
 	}
 	if d.SNSClient == nil {

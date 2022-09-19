@@ -6,7 +6,7 @@ Feature: Trigger operations
 
   Scenario: Trigger operation for one client
     Given test env variables were loaded
-    And postgresSQL is "up"
+    And dynamoDB is "up"
     And binance api is "up"
     And sns service is "up"
     And I receive message with summary equals "STRONG_BUY"
@@ -20,7 +20,7 @@ Feature: Trigger operations
 
   Scenario: Trigger operation for six clients
     Given test env variables were loaded
-    And postgresSQL is "up"
+    And dynamoDB is "up"
     And binance api is "up"
     And sns service is "up"
     And I receive message with summary equals "STRONG_BUY"

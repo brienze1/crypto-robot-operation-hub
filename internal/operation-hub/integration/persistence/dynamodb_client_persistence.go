@@ -9,20 +9,22 @@ import (
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
+	adapters2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/adapters"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/dto"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/integration/exceptions"
-	"time"
 )
 
 type dynamoDBClientPersistence struct {
-	logger   adapters.LoggerAdapter
-	dynamoDB *dynamodb.Client
+	logger     adapters.LoggerAdapter
+	dynamoDB   adapters2.DynamoDBAdapter
+	timeSource adapters.TimeAdapter
 }
 
-func DynamoDBClientPersistence(logger adapters.LoggerAdapter, dynamoDB *dynamodb.Client) *dynamoDBClientPersistence {
+func DynamoDBClientPersistence(logger adapters.LoggerAdapter, dynamoDB adapters2.DynamoDBAdapter, timeSource adapters.TimeAdapter) *dynamoDBClientPersistence {
 	return &dynamoDBClientPersistence{
-		logger:   logger,
-		dynamoDB: dynamoDB,
+		logger:     logger,
+		dynamoDB:   dynamoDB,
+		timeSource: timeSource,
 	}
 }
 
@@ -33,7 +35,7 @@ func (d *dynamoDBClientPersistence) GetClients(config *model.ClientSearchConfig)
 		expression.And(
 			expression.Name("active").Equal(expression.Value(config.Active)),
 			expression.Name("locked").Equal(expression.Value(config.Locked)),
-			expression.Name("locked_until").LessThanEqual(expression.Value(time.Now())),
+			expression.Name("locked_until").LessThanEqual(expression.Value(d.timeSource.Now())),
 			expression.Name("cash_amount").GreaterThanEqual(expression.Value(config.MinimumCash)),
 			expression.Name("crypto_amount").GreaterThanEqual(expression.Value(config.MinimumCrypto)),
 			expression.Name("sell_on").LessThanEqual(expression.Value(config.SellWeight.Value())),
