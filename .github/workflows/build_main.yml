@@ -6,6 +6,10 @@ on:
       - main
     types:
       - closed
+  check_suite:
+    types:
+      - completed
+  status: { }
 
 jobs:
   lint:
