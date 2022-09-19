@@ -6,19 +6,18 @@ on:
       - main
     types:
       - closed
-  check_suite:
-    types:
-      - completed
-  status: { }
 
 jobs:
   lint:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/lint.yml
 
   test:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/test.yml
 
   dependency-check:
+    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/dependency_check.yml
 
   coverage:
