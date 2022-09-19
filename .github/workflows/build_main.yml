@@ -1,7 +1,10 @@
 name: Build
 
 on:
-  push:
+  workflow_run:
+    workflows: [Auto-merge]
+    types:
+      - completed
     branches:
       - main
 
