@@ -3,7 +3,7 @@ name: Build
 on:
   workflow_run:
     workflows:
-      - Auto Merge
+      - "Auto Merge"
     types:
       - completed
     branches:
