@@ -9,7 +9,7 @@ on:
   check_suite:
     types:
       - completed
-  status: {}
+  status: { }
 
 jobs:
   lint:
