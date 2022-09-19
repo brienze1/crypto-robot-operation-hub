@@ -1,10 +1,22 @@
-name: Auto-merge
+name: Auto Merge
 
 on:
-  workflow_run:
-    workflows: [Build Changes]
+  pull_request:
+    branches:
+      - main
+    types:
+      - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
+  check_suite:
     types:
       - completed
+  status: { }
 
 jobs:
   automerge:
