@@ -252,7 +252,7 @@ Example of how the line should look like:
 #### Client DB
 
 Client DB is the database that contains the client information and configuration needed to trigger the operations.
-For this DB, Postgres was chosen because of the query performance.
+For this DB, DynamoDB was chosen because it's cheaper.
 
 ##### Schema
 
@@ -332,39 +332,20 @@ This application supports the following operations to the Client DB:
 
 This is the query used to get clients from DB:
 
-```SQL
-SELECT clients.id
-FROM clients
-         INNER JOIN client_symbols cs
-                    on clients.id = cs.client_id
-         INNER JOIN crypto c
-                    on cs.crypto_id = c.id
-         INNER JOIN clients_summary sm
-                    on (clients.id = sm.client_id AND sm.type = 'MONTH' AND
-                        sm.month = date_part('month', (SELECT current_timestamp)) AND
-                        sm.year = date_part('year', (SELECT current_timestamp)))
-         INNER JOIN clients_summary sd
-                    on (clients.id = sd.client_id AND sd.type = 'DAY' AND
-                        sd.day = date_part('day', (SELECT current_timestamp)) AND
-                        sd.month = date_part('month', (SELECT current_timestamp)) AND
-                        sd.year = date_part('year', (SELECT current_timestamp)))
-WHERE active = true
-  AND locked = false
-  AND locked_until <= now()
-  AND cash_amount - cash_reserved >= 100
-  AND crypto_amount - crypto_reserved >= 0.00000001
-  AND c.symbol = 'BTC'
-  AND sell_on >= 2
-  AND buy_on >= 2
-  AND day_stop_loss > sd.profit * -1
-  AND clients.month_stop_loss > sm.profit * -1
-ORDER BY id
-LIMIT 2 OFFSET 2
-;
+```gotemplate
+    expr, _ := expression.NewBuilder().WithFilter(
+    expression.And(
+    expression.Name("active").Equal(expression.Value(config.Active)),
+    expression.Name("locked").Equal(expression.Value(config.Locked)),
+    expression.Name("locked_until").LessThanEqual(expression.Value(d.timeSource.Now())),
+    expression.Name("cash_amount").GreaterThanEqual(expression.Value(config.MinimumCash)),
+    expression.Name("crypto_amount").GreaterThanEqual(expression.Value(config.MinimumCrypto)),
+    expression.Name("sell_on").LessThanEqual(expression.Value(config.SellWeight.Value())),
+    expression.Name("buy_on").LessThanEqual(expression.Value(config.BuyWeight.Value())),
+    expression.Name("symbols").Contains(config.Symbol.Name()),
+    ),
+    ).Build()
 ```
-
-- Read ops:
-    - Used to read clients available for the current operation
 
 ### Rules
 
@@ -386,6 +367,9 @@ Implemented:
   value.
     - For example if the config value is equal to `SELL` and a `STRONG_SELL` analysis was received, the operation should
       be allowed, and the opposite should be denied.
+
+Not implemented (this will be done on another service):
+
 - Operations should not be triggered if `daily_summary.proffit` has a negative value of more than or equal to
   the `config.day_stop_loss` value.
     - `daily_summary.day` value should be checked to see if current day has changed, in this case, the values
@@ -404,8 +388,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 #### Dependencies
 
 - [aws/aws-lambda-go](https://github.com/aws/aws-lambda-go): Used in Lambda Handler integration
-- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS integration
-- [github.com/lib/pq](https://github.com/lib/pq): PostgresSQL driver for Go's database/sql
+- [aws/aws-sdk-go-v2](https://github.com/aws/aws-sdk-go-v2): Used in SNS and DynamoDB integration
 - [google/uuid](https://github.com/google/uuid): Used to generate uuids
 - [joho/godotenv](https://github.com/joho/godotenv): Used to map .env variables
 
@@ -417,7 +400,6 @@ using GitHub actions. Local environment is created using localstack for testing 
 
 - [cucumber/godog](https://github.com/cucumber/godog): Used to run integration tests
 - [stretchr/testify](https://github.com/stretchr/testify): Used to perform test assertions
-- [github.com/DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock): Used to integrate sql into tests
 
 ### Roadmap
 
@@ -427,7 +409,7 @@ using GitHub actions. Local environment is created using localstack for testing 
 - [x] Create Dockerfile
 - [x] Create Docker compose for local infrastructure
 - [x] Document everything in Readme
-- [ ] Change to use DynamoDB instead of Postgres (worse performance but, less expensive)
+- [X] Change to use DynamoDB instead of Postgres (worse performance but, less expensive)
 - [x] Use secret manager to get DB password
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -525,23 +507,23 @@ Obs: Make sure Docker is running before.
 
 ### Testing
 
-- To run the unit tests just type the command bellow in terminal:
+- To run the unit tests:
+    - Windows/macOS/Linux/WSL
+      ```bash
+      go test ./test/unit/...
+      ```
+
+- To run the integration tests:
+    - Windows/macOS/Linux/WSL
+      ```bash
+      go test ./test/integrated/...
+      ```
+      
+- To run the all tests:
     - Windows/macOS/Linux/WSL
       ```bash
       go test ./...
       ```
-
-- To run the integration tests:
-    - First godog needs to be installed:
-        - Windows/macOS/Linux/WSL
-          ```bash
-          go install github.com/cucumber/godog/cmd/godog@latest
-          ```
-    - Then run the tests
-        - Windows/macOS/Linux/WSL
-          ```bash
-          cd test/integrated;godog run;cd ../..
-          ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
