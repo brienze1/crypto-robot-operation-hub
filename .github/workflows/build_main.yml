@@ -1,27 +1,21 @@
 name: Build
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - closed
-  check_suite:
+  workflow_run:
+    workflows: [Auto-merge]
     types:
       - completed
-  status: { }
+    branches:
+      - main
 
 jobs:
   lint:
-    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/lint.yml
 
   test:
-    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/test.yml
 
   dependency-check:
-    if: ${{ github.event.pull_request.merged }}
     uses: ./.github/workflows/dependency_check.yml
 
   coverage:
