@@ -4,6 +4,15 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
   check_suite:
     types:
       - completed
