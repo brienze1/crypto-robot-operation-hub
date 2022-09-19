@@ -6,6 +6,8 @@ on:
       - Auto Merge
     types:
       - completed
+    branches:
+      - main
 
 jobs:
   lint:
