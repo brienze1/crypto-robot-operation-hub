@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   lint:
@@ -29,7 +29,3 @@ jobs:
       username: ${{ secrets.DOCKER_HUB_USERNAME }}
       app_name: ${{ secrets.DOCKER_HUB_APP_NAME }}
       token: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-  pull-request:
-    needs: coverage
-    uses: ./.github/workflows/pull_request.yml
