@@ -29,7 +29,7 @@ func getConfig() *aws.Config {
 			func() {
 				if properties.Properties().Aws.Config.OverrideConfig {
 					newAwsConfig, err := config.LoadDefaultConfig(context.TODO(),
-						config.WithEndpointResolverWithOptions(newEndpointResolver()),
+						config.WithEndpointResolverWithOptions(NewEndpointResolver()),
 						config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 							properties.Properties().Aws.Config.AccessKey,
 							properties.Properties().Aws.Config.AccessSecret,
@@ -51,7 +51,7 @@ func getConfig() *aws.Config {
 	return awsConfig
 }
 
-func newEndpointResolver() aws.EndpointResolverWithOptionsFunc {
+func NewEndpointResolver() aws.EndpointResolverWithOptionsFunc {
 	return func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			PartitionID:       "aws",

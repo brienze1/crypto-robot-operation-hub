@@ -262,7 +262,7 @@ For this DB, Postgres was chosen because of the query performance.
 {
   "id": "uuid",
   "active": true,
-  "locked_until": "20-07-2022 02:18:10",
+  "locked_until": "2022-09-17T12:05:07.45066-03:00",
   "locked": false,
   "cash_amount": 100,
   "cash_reserved": 0.00,

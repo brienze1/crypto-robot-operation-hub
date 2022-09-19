@@ -2,19 +2,19 @@ package integrated
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/config"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/application/properties"
 	dto2 "github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/delivery/dto"
-	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/operation_type"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/summary"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/enum/symbol"
 	"github.com/brienze1/crypto-robot-operation-hub/internal/operation-hub/domain/model"
@@ -47,7 +47,7 @@ func TestFeatures(t *testing.T) {
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^test env variables were loaded$`, testEnvVariablesWereLoaded)
-	ctx.Step(`^postgresSQL is "([^"]*)"$`, postgresSQLIs)
+	ctx.Step(`^dynamoDB is "([^"]*)"$`, dynamoDBIs)
 	ctx.Step(`^binance api is "([^"]*)"$`, binanceApiIs)
 	ctx.Step(`^sns service is "([^"]*)"$`, snsServiceIs)
 	ctx.Step(`^I receive message with summary equals "([^"]*)"$`, iReceiveMessageWithSummaryEquals)
@@ -63,19 +63,18 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 type (
 	loggerMock struct {
 	}
-	postgresSQLMock struct {
-		dbMock sqlmock.Sqlmock
-		db     *sql.DB
-	}
 	snsClientMock struct {
 	}
 	contextMock struct {
 		context.Context
 	}
+	dynamoDB struct {
+	}
 )
 
 var (
-	postgresSQL             = &postgresSQLMock{}
+	dynamoDb                = &dynamoDB{}
+	dynamoDBClientError     error
 	persistedClients        []model.Client
 	snsClientError          error
 	snsClientPublishCounter = 0
@@ -92,10 +91,6 @@ func (l loggerMock) Error(error, string, ...interface{}) {
 func (l loggerMock) SetCorrelationID(string) {
 }
 
-func (p *postgresSQLMock) OpenConnection() (*sql.DB, error) {
-	return p.db, nil
-}
-
 func (s *snsClientMock) Publish(_ context.Context, input *sns.PublishInput, _ ...func(*sns.Options)) (*sns.PublishOutput, error) {
 	snsClientPublishCounter++
 	request := model.OperationRequest{}
@@ -110,34 +105,42 @@ func (ctx contextMock) Value(any) any {
 	}
 }
 
+func (d *dynamoDB) Scan(_ context.Context, params *dynamodb.ScanInput, _ ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+	var items []map[string]types.AttributeValue
+
+	for _, persistedClient := range persistedClients {
+		if d.selectClient(persistedClient, params) {
+			client := &dto.Client{
+				Id: persistedClient.Id,
+			}
+			item, _ := attributevalue.MarshalMap(client)
+			items = append(items, item)
+		}
+	}
+
+	return &dynamodb.ScanOutput{Items: items}, dynamoDBClientError
+}
+
+func (d *dynamoDB) selectClient(_ model.Client, _ *dynamodb.ScanInput) bool {
+	return true
+}
+
 var (
-	expectedPrice  float64
-	ctx            contextMock
-	event          *events.SQSEvent
-	summaryValue   summary.Summary
-	expectedCash   float64
-	expectedCrypto float64
-	sellWeight     int
-	buyWeight      int
+	expectedPrice float64
+	ctx           contextMock
+	event         *events.SQSEvent
+	summaryValue  summary.Summary
 )
 
 func testEnvVariablesWereLoaded() {
 	config.LoadTestEnv()
 }
 
-func postgresSQLIs(status string) error {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		return err
-	}
-
-	postgresSQL.dbMock = mock
-	postgresSQL.db = db
-
-	config.DependencyInjector().PostgresSQLClient = postgresSQL
+func dynamoDBIs(status string) error {
+	config.DependencyInjector().DynamoDBClient = dynamoDb
 
 	if status != "up" {
-		postgresSQL.dbMock.ExpectQuery("SELECT").WillReturnError(errors.New("dynamoDB not up"))
+		dynamoDBClientError = errors.New("dynamoDB not up")
 	}
 
 	return nil
@@ -179,19 +182,6 @@ func snsServiceIs(status string) error {
 func iReceiveMessageWithSummaryEquals(value string) error {
 	summaryValue = summary.Summary(value)
 
-	switch summaryValue.OperationType() {
-	case operation_type.Buy:
-		expectedCash = expectedPrice * properties.Properties().MinimumCryptoBuyOperation
-		expectedCrypto = 0.0
-		sellWeight = summary.StrongSell.Value()
-		buyWeight = summaryValue.Value()
-	case operation_type.Sell:
-		expectedCash = 0.0
-		expectedCrypto = expectedPrice * properties.Properties().MinimumCryptoSellOperation
-		sellWeight = summaryValue.Value()
-		buyWeight = summary.StrongBuy.Value()
-	}
-
 	event = createSQSEvent(summaryValue)
 
 	ctx = contextMock{}
@@ -201,26 +191,20 @@ func iReceiveMessageWithSummaryEquals(value string) error {
 
 func thereAreClientsAvailableInDB(numberOfClients int) error {
 	persistedClients = []model.Client{}
-	rows := sqlmock.NewRows([]string{"id"})
 	for i := 1; i <= numberOfClients; i++ {
 		client := model.Client{
-			Id: uuid.NewString(),
+			Id:           uuid.NewString(),
+			Active:       true,
+			LockedUntil:  time.Now().Add(-time.Second * 15).String(),
+			Locked:       false,
+			CashAmount:   10000.0,
+			CryptoAmount: 1.0,
+			BuyOn:        1,
+			SellOn:       1,
+			Symbols:      []string{"BTC", "SOL"},
 		}
 		persistedClients = append(persistedClients, client)
-		rows.AddRow(client.Id)
 	}
-
-	postgresSQL.dbMock.ExpectQuery("SELECT").WithArgs(
-		true,
-		false,
-		expectedCash,
-		expectedCrypto,
-		symbol.Bitcoin.Name(),
-		sellWeight,
-		buyWeight,
-		20,
-		0).WillReturnRows(rows)
-	postgresSQL.dbMock.ExpectClose()
 
 	return nil
 }
@@ -264,7 +248,9 @@ func snsMessagesPayloadShouldHaveAllClientIdsGotFromClientsTable() error {
 		}
 
 		if !found {
-			return errors.New("client id should have been sent to sns")
+			err := errors.New("client id should have been sent to sns")
+			log.Logger().Error(err, "client id should have been sent to sns", snsClientPublishInputs, persistedClients)
+			return err
 		}
 	}
 
