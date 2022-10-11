@@ -28,9 +28,6 @@ aws sns subscribe \
 echo "########### Listing SNS Subscriptions ###########"
 aws sns list-subscriptions --endpoint-url http://localstack:4566
 
-echo "########### Create secrets manager ###########"
-aws secretsmanager create-secret --name cryptoRobotOperationHubSecret --secret-string '{"host":"localhost","port":5432,"user":"postgres","password":"postgres","db_name":"crypto_robot"}' --endpoint-url http://localstack:4566
-
 echo "########### Copy the lambda function to the S3 bucket ###########"
 aws s3 cp /lambda-files/crypto-robot-operation-hub.zip s3://lambda-functions --endpoint-url http://localstack:4566
 
