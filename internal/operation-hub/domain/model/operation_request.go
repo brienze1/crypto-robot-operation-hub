@@ -6,10 +6,10 @@ import (
 )
 
 type OperationRequest struct {
-	ClientId  string `json:"client_id"`
-	Operation string `json:"operation"`
-	Symbol    string `json:"symbol"`
-	StartTime string `json:"start_time"`
+	ClientId  string    `json:"client_id"`
+	Operation string    `json:"operation"`
+	Symbol    string    `json:"symbol"`
+	StartTime time.Time `json:"start_time"`
 }
 
 func NewOperationRequest(client Client, summary summary.Summary) *OperationRequest {
@@ -17,6 +17,6 @@ func NewOperationRequest(client Client, summary summary.Summary) *OperationReque
 		ClientId:  client.Id,
 		Operation: summary.OperationTypeString(),
 		Symbol:    summary.Name(),
-		StartTime: time.Now().String(),
+		StartTime: time.Now(),
 	}
 }
