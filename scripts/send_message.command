@@ -6,7 +6,7 @@ aws sns publish \
 --topic-arn arn:aws:sns:sa-east-1:000000000000:cryptoAnalysisSummaryTopic \
 --profile localstack \
 --message '{
-             "summary": "STRONG_BUY",
+             "summary": "STRONG_SELL",
              "timestamp": "20-07-2022 02:18:10",
              "analysed_data": [
                {
