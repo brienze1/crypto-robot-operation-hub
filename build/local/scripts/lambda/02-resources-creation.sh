@@ -12,8 +12,18 @@ aws sns create-topic --name cryptoOperationTriggerTopic --endpoint-url http://lo
 echo "########### Listing SNS ###########"
 aws sns list-topics --endpoint-url http://localstack:4566
 
+echo "########### Creating DLQ SQS ###########"
+aws sqs create-queue --queue-name cryptoOperationHubQueueDLQ --endpoint-url http://localstack:4566
+
 echo "########### Creating SQS ###########"
-aws sqs create-queue --queue-name cryptoOperationHubQueue --endpoint-url http://localstack:4566
+aws sqs create-queue \
+--queue-name cryptoOperationHubQueue \
+--attributes '{
+    "RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:sa-east-1:000000000000:cryptoOperationHubQueueDLQ\",\"maxReceiveCount\":\"3\"}",
+    "MessageRetentionPeriod": "259200",
+    "VisibilityTimeout": "90"
+}' \
+--endpoint-url http://localstack:4566
 
 echo "########### Listing SQS ###########"
 aws sqs list-queues --endpoint-url http://localstack:4566
