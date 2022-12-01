@@ -1,0 +1,209 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Crypto Robot Operation Hub
+
+Parameters:
+  # DB config
+  ReadCapacityUnits:
+    Type: Number
+    Default: 5
+  WriteCapacityUnits:
+    Type: Number
+    Default: 5
+
+  # Tags
+  System:
+    Type: String
+    Default: 'crypto-robot'
+  Parent:
+    Type: String
+    Default: 'crypto-robot-operation-hub'
+
+  # Lambda Env
+  OperationHubEnv:
+    Type: String
+    Default: 'localstack'
+
+Resources:
+  CryptoOperationHubQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: 'cryptoOperationHubQueueDLQ'
+    Tags:
+      - Key: type
+        Value: sqs-dlq
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoOperationHubQueue:
+    Type: AWS::SQS::Queue
+    #    DependsOn: CryptoOperationHubQueueDLQ
+    Properties:
+      QueueName: 'cryptoOperationHubQueue'
+      VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn: !Sub ${CryptoOperationHubQueueDLQ.Arn}
+        maxReceiveCount: 3
+    Tags:
+      - Key: type
+        Value: sqs
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoAnalysisSummaryToCryptoOperationHubQueue:
+    Type: AWS::SNS::Subscription
+    #    DependsOn: CryptoOperationHubQueue
+    Properties:
+      TopicArn: !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:cryptoAnalysisSummaryTopic'
+      Endpoint: !Sub ${CryptoOperationHubQueue.Arn}
+      Protocol: sqs
+      RawMessageDelivery: true
+    Tags:
+      - Key: type
+        Value: sns-subscription
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoOperationTriggerTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: 'cryptoOperationTriggerTopic'
+    Tags:
+      - Key: type
+        Value: sns
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoRobotClientsDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: 'crypto_robot.clients'
+      AttributeDefinitions:
+        - AttributeName: 'client_id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'client_id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+    Tags:
+      - Key: type
+        Value: table
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoOperationHubLambdaRole:
+    Type: AWS::IAM::Role
+    #    DependsOn:
+    #      - CryptoOperationHubQueue
+    #      - CryptoOperationTriggerTopic
+    #      - CryptoRobotClientsDynamoDBTable
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+        - PolicyName: sqs
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                Resource: !Sub ${CryptoOperationHubQueue.Arn}
+        - PolicyName: sns
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Sub ${CryptoOperationTriggerTopic.Arn}
+        - PolicyName: dynamodb
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGet*
+                  - dynamodb:DescribeTable
+                  - dynamodb:Get*
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:Delete*
+                  - dynamodb:Update*
+                  - dynamodb:PutItem
+                Resource:
+                  - !Sub ${CryptoRobotClientsDynamoDBTable.Arn}
+    Tags:
+      - Key: type
+        Value: role
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoOperationHubLambda:
+    Type: AWS::Lambda::Function
+    #    DependsOn: CryptoOperationHubLambdaRole
+    Properties:
+      Runtime: go1.x
+      Role: !Sub ${CryptoOperationHubLambdaRole.Arn}
+      Handler: ./operation-hub
+      FunctionName: 'operationHubLambda'
+      Code:
+        S3Bucket: lambda-functions
+        S3Key: crypto-robot-operation-hub.zip
+      MemorySize: 128
+      Timeout: 60
+      Description: 'SQS Lambda handler for crypto-robot-operation-hub.'
+      Environment:
+        Variables:
+          OPERATION_HUB_ENV: !Ref OperationHubEnv
+    Tags:
+      - Key: type
+        Value: lambda
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent
+
+  CryptoOperationHubLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    #    DependsOn:
+    #      - CryptoOperationHubQueue
+    #      - CryptoOperationHubLambda
+    Properties:
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn: !Sub ${CryptoOperationHubQueue.Arn}
+      FunctionName: !Sub ${CryptoOperationHubLambda.Arn}
+    Tags:
+      - Key: type
+        Value: event-source-mapping
+      - Key: system
+        Value: !Ref System
+      - Key: parent
+        Value: !Ref Parent

@@ -29,13 +29,8 @@ func (h *handler) Handle(context context.Context, event events.SQSEvent) error {
 	h.logger.SetCorrelationID(ctx.AwsRequestID)
 	h.logger.Info("Event received", event, ctx)
 
-	snsMessage := &events.SNSEntity{}
-	if err := json.Unmarshal([]byte(event.Records[0].Body), snsMessage); err != nil {
-		return h.abort(err, "Error while trying to parse the SNS message")
-	}
-
 	analysisDto := &dto.AnalysisDto{}
-	if err := json.Unmarshal([]byte(snsMessage.Message), analysisDto); err != nil {
+	if err := json.Unmarshal([]byte(event.Records[0].Body), analysisDto); err != nil {
 		return h.abort(err, "Error while trying to parse the analysis object")
 	}
 

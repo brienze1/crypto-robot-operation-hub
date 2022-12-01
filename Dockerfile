@@ -20,6 +20,6 @@ RUN apk add zip
 RUN apk add bash
 
 # zip the binary in the container
-RUN zip -r crypto-robot-operation-hub.zip config operation-hub
+#RUN zip -r crypto-robot-operation-hub.zip config operation-hub
 
 ENTRYPOINT []
