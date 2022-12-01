@@ -8,3 +8,6 @@ aws s3 mb s3://lambda-functions --endpoint-url http://localhost:4566
 
 echo "########### Create Admin IAM Role ###########"
 aws iam create-role --role-name admin-role --path / --assume-role-policy-document file:./admin-policy.json --endpoint-url http://localhost:4566
+
+echo "########### Creating SNS ###########"
+aws sns create-topic --name cryptoAnalysisSummaryTopic --endpoint-url http://localstack:4566

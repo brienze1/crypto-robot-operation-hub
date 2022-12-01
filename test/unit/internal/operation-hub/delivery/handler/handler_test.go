@@ -104,27 +104,6 @@ func TestHandlerJsonSQSError(t *testing.T) {
 	var err = handlerImpl.Handle(ctx, event)
 
 	assert.NotNil(t, err, "Error should not be nil")
-	assert.Equal(t, "Error while trying to parse the SNS message", err.(custom_error.BaseErrorAdapter).InternalError())
-	assert.Equal(t, "Error occurred while handling the event", err.(custom_error.BaseErrorAdapter).Description())
-	assert.Equal(t, "unexpected end of JSON input", err.(custom_error.BaseErrorAdapter).Error())
-	assert.Equal(t, 0, clientActionsUseCaseCallCounter, "clientActionsUseCase should not be called")
-	assert.Equal(t, 1, loggerInfoCallCounter, "logger info should be called once")
-	assert.Equal(t, 1, loggerErrorCallCounter, "logger exceptions should be called once")
-	assert.Equal(t, awsRequestIdExpected, awsRequestIdReceived, "Logger correlationId is same as context awsRequestId")
-}
-
-func TestHandlerJsonSNSError(t *testing.T) {
-	setup()
-
-	ctx := ctx{}
-	event := *createSQSEvent()
-	snsMessage := createSNSEvent("")
-	snsMessageString, _ := json.Marshal(snsMessage)
-	event.Records[0].Body = string(snsMessageString)
-
-	var err = handlerImpl.Handle(ctx, event)
-
-	assert.NotNil(t, err, "Error should not be nil")
 	assert.Equal(t, "Error while trying to parse the analysis object", err.(custom_error.BaseErrorAdapter).InternalError())
 	assert.Equal(t, "Error occurred while handling the event", err.(custom_error.BaseErrorAdapter).Description())
 	assert.Equal(t, "unexpected end of JSON input", err.(custom_error.BaseErrorAdapter).Error())
@@ -161,19 +140,11 @@ func createSQSEvent() *events.SQSEvent {
 
 	analysisMessage, _ := json.Marshal(analysisDto)
 
-	snsEventMessage, _ := json.Marshal(createSNSEvent(string(analysisMessage)))
-
 	return &events.SQSEvent{
 		Records: []events.SQSMessage{
 			{
-				Body: string(snsEventMessage),
+				Body: string(analysisMessage),
 			},
 		},
-	}
-}
-
-func createSNSEvent(message string) events.SNSEntity {
-	return events.SNSEntity{
-		Message: message,
 	}
 }

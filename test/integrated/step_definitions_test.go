@@ -305,19 +305,11 @@ func createSQSEvent(summary summary.Summary) *events.SQSEvent {
 
 	analysisMessage, _ := json.Marshal(analysisDto)
 
-	snsEventMessage, _ := json.Marshal(createSNSEvent(string(analysisMessage)))
-
 	return &events.SQSEvent{
 		Records: []events.SQSMessage{
 			{
-				Body: string(snsEventMessage),
+				Body: string(analysisMessage),
 			},
 		},
-	}
-}
-
-func createSNSEvent(message string) events.SNSEntity {
-	return events.SNSEntity{
-		Message: message,
 	}
 }
